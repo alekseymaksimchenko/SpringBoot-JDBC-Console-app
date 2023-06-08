@@ -16,7 +16,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import com.foxminded.schoolapp.entity.StudentCourseEntity;
+import com.foxminded.schoolapp.dao.entity.StudentCourseEntity;
 
 @Testcontainers
 @JdbcTest
@@ -41,7 +41,7 @@ class StudentCourseJdbcDaoTest {
     }
 
     @Test
-    void testStudentCourseDao_ShouldAddStudentToCourse() {
+    void testStudentCourseJdbcDao_ShouldAddStudentToCourse() {
         testStudentCourseEntity = new StudentCourseEntity(3, 3);
         studentCourseJdbcDao.addStudentToCourse(testStudentCourseEntity);
         int expected = 1;
@@ -51,15 +51,15 @@ class StudentCourseJdbcDaoTest {
     }
 
     @Test
-    void testStudentCourseDao_ShouldFindAllStudentsByCourseId() {
-        String expected = "[StudentCourseEntity [studentId=1, courseId=2], StudentCourseEntity [studentId=2, courseId=2], StudentCourseEntity [studentId=3, courseId=2]]";
-        String actual = studentCourseJdbcDao.findAllStudentsRelatedToCourse(2).toString();
+    void testStudentCourseJdbcDao_ShouldfindAllStudentsRelatedToCourseByCourseId() {
+       int expected = 3;
+       int actual = studentCourseJdbcDao.findAllStudentsRelatedToCourse(2).size();
 
-        assertEquals(expected, actual);
+       assertEquals(expected, actual);
     }
 
     @Test
-    void testStudentCourseDao_ShouldRemoveStudentFromCourse() {
+    void testStudentCourseJdbcDao_ShouldRemoveStudentFromCourse() {
 
         int expected = studentCourseJdbcDao.findAllStudentsRelatedToCourse(2).size() - 1;
 

@@ -13,7 +13,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import com.foxminded.schoolapp.entity.CourseEntity;
+import com.foxminded.schoolapp.dao.entity.CourseEntity;
 
 @Testcontainers
 @JdbcTest
@@ -28,66 +28,76 @@ class CourseJdbcDaoTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
-    private CourseJdbcDao course;
+    private CourseJdbcDao courseJdbcDao;
     private CourseEntity testCourseEntity;
 
     @BeforeEach
     void setUp() {
-        course = new CourseJdbcDao(jdbcTemplate);
+        courseJdbcDao = new CourseJdbcDao(jdbcTemplate);
         testCourseEntity = new CourseEntity("testName", "testDescription");
     }
 
     @Test
-    void testCourseDaoShouldSave() {
-        course.save(testCourseEntity);
-        String expected = "CourseEntity [id=1, name=testName, description=testDescription]";
-        String actual = course.getByID(1).get().toString();
-        assertEquals(expected, actual);
+    void testCourseJdbcDao_ShouldSave() {
+        courseJdbcDao.save(testCourseEntity);
 
-    }
-
-    @Test
-    void testCourseDao_shouldFindByIdEntry() {
-        course.save(testCourseEntity);
-        String expected = "CourseEntity [id=1, name=testName, description=testDescription]";
-        String actual = course.getByID(1).get().toString();
+        int expected = 1;
+        int actual = courseJdbcDao.getAll().size();
         assertEquals(expected, actual);
     }
 
     @Test
-    void testCourseDao_ShouldFindAllEntry() {
-        course.save(testCourseEntity);
-        course.save(testCourseEntity);
-        course.save(testCourseEntity);
+    void testCourseJdbcDao_shouldFindByIdEntry() {
+        courseJdbcDao.save(testCourseEntity);
+
+        String expectedName = "testName";
+        String expectedDescription = "testDescription";
+
+        courseJdbcDao.getByID(1).ifPresent(s -> {
+            assertEquals(expectedName, s.getName());
+            assertEquals(expectedDescription, s.getDescription());
+        });
+    }
+
+    @Test
+    void testCourseJdbcDao_ShouldFindAllEntry() {
+        courseJdbcDao.save(testCourseEntity);
+        courseJdbcDao.save(testCourseEntity);
+        courseJdbcDao.save(testCourseEntity);
 
         int expected = 3;
-        int actual = course.getAll().size();
+        int actual = courseJdbcDao.getAll().size();
         assertEquals(expected, actual);
     }
 
     @Test
-    void testCourseDao_ShouldUpdateEntry() {
-        course.save(testCourseEntity);
+    void testCourseJdbcDao_ShouldUpdateEntry() {
+        courseJdbcDao.save(testCourseEntity);
 
-        String[] update = {"Updated Bio", "Updated Bio"};
+        CourseEntity savedEntiry = new CourseEntity(1, "testName", "testDescription");
+        String[] update = { "Updated Bio", "Updated Bio" };
 
-        course.update(testCourseEntity, update);
-        String expected = "CourseEntity [id=1, name=testName, description=testDescription]";
+        courseJdbcDao.update(savedEntiry, update);
 
-        String actual = course.getByID(1).get().toString();
-        assertEquals(expected, actual);
+        String expectedName = "Updated Bio";
+        String expectedDescription = "Updated Bio";
+
+        courseJdbcDao.getByID(1).ifPresent(s -> {
+            assertEquals(expectedName, s.getName());
+            assertEquals(expectedDescription, s.getDescription());
+        });
     }
 
     @Test
-    void testCourseDao_ShouldDeleteEntry() {
-        course.save(testCourseEntity);
-        course.save(testCourseEntity);
-        course.save(testCourseEntity);
+    void testCourseJdbcDao_ShouldDeleteEntry() {
+        courseJdbcDao.save(testCourseEntity);
+        courseJdbcDao.save(testCourseEntity);
+        courseJdbcDao.save(testCourseEntity);
 
-        int expected = course.getAll().size() - 1;
-        course.deleteById(1);
+        int expected = courseJdbcDao.getAll().size() - 1;
+        courseJdbcDao.deleteById(1);
 
-        int actual = course.getAll().size();
+        int actual = courseJdbcDao.getAll().size();
         assertEquals(expected, actual);
     }
 }

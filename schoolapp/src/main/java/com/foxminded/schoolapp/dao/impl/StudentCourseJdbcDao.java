@@ -6,10 +6,11 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import com.foxminded.schoolapp.dao.StudentCourseRowMapper;
-import com.foxminded.schoolapp.entity.StudentCourseEntity;
+import com.foxminded.schoolapp.dao.StudentCourseDao;
+import com.foxminded.schoolapp.dao.entity.StudentCourseEntity;
+import com.foxminded.schoolapp.dao.mapper.StudentCourseRowMapper;
 
-public class StudentCourseJdbcDao implements StudentCourse<StudentCourseEntity> {
+public class StudentCourseJdbcDao implements StudentCourseDao<StudentCourseEntity> {
 
     private final JdbcTemplate jdbcTemplate;
     private static final String SQL_ADD_STUDENT_TO_COURSE = "INSERT INTO school.students_courses (student_id, course_id) VALUES(?, ?)";

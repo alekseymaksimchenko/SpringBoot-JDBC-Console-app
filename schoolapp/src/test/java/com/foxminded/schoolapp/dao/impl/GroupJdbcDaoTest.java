@@ -13,7 +13,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import com.foxminded.schoolapp.entity.GroupEntity;
+import com.foxminded.schoolapp.dao.entity.GroupEntity;
 
 @Testcontainers
 @JdbcTest
@@ -37,7 +37,7 @@ class GroupJdbcDaoTest {
     }
 
     @Test
-    void testGroupDao_ShouldCreateEntry() {
+    void testGroupJdbcDao_ShouldCreateEntry() {
         groupJdbcDao.save(testGroupEntity);
 
         int expected = 1;
@@ -46,42 +46,40 @@ class GroupJdbcDaoTest {
     }
 
     @Test
-    void testGroupDao_ShouldFindByIdEntry() {
+    void testGroupJdbcDao_ShouldFindByIdEntry() {
         groupJdbcDao.save(testGroupEntity);
 
-        String expected = "GroupEntity [id=1, name=testName]";
-        String actual = groupJdbcDao.getByID(1).get().toString();
+        String expectedName = "testName";
 
-        assertEquals(expected, actual);
+        groupJdbcDao.getByID(1).ifPresent(group -> assertEquals(expectedName, group.getName()));
     }
 
     @Test
-    void testGroupDao_ShouldFindAllEntry() {
+    void testGroupJdbcDao_ShouldFindAllEntry() {
         groupJdbcDao.save(testGroupEntity);
         groupJdbcDao.save(testGroupEntity);
         groupJdbcDao.save(testGroupEntity);
 
         int expected = 3;
         int actual = groupJdbcDao.getAll().size();
+
         assertEquals(expected, actual);
     }
 
     @Test
-    void testGroupDao_ShouldUpdateEntry() {
+    void testGroupJdbcDao_ShouldUpdateEntry() {
         groupJdbcDao.save(testGroupEntity);
-
+        GroupEntity savedEntiry = new GroupEntity(1, "Updated Bio");
         String[] update = { "Updated Bio" };
 
-        groupJdbcDao.update(testGroupEntity, update);
+        groupJdbcDao.update(savedEntiry, update);
 
-        String expected = "GroupEntity [id=1, name=testName]";
-        String actual = groupJdbcDao.getByID(1).get().toString();
-
-        assertEquals(expected, actual);
+        String expectedName = "Updated Bio";
+        groupJdbcDao.getByID(1).ifPresent(group -> assertEquals(expectedName, group.getName()));
     }
 
     @Test
-    void testGroupDao_ShouldDeleteEntry() {
+    void testGroupJdbcDao_ShouldDeleteEntry() {
         groupJdbcDao.save(testGroupEntity);
         groupJdbcDao.save(testGroupEntity);
         groupJdbcDao.save(testGroupEntity);
@@ -96,11 +94,11 @@ class GroupJdbcDaoTest {
     @Sql(statements = "insert into school.groups (name) values ('group1'), ('group2');"
             + "insert into school.students (firstname, lastname, group_id) values ('test1', 'test1', 1), ('test1', 'test1', 1), ('test2', 'test2', 2);")
     @Test
-    void testGroupDao_ShouldFindGroupsByStudentCount() {
-        String expected = "[GroupEntity [id=2, name=group2]]";
-        String actual = groupJdbcDao.getAllGroupsAccordingStudentCount(1).toString();
+    void testGroupJdbcDao_ShouldFindGroupsByStudentCount() {
+        String expectedGroupName = "group2";
 
-        assertEquals(expected, actual);
+        groupJdbcDao.getAllGroupsAccordingStudentCount(1)
+                .forEach(entry -> assertEquals(expectedGroupName, entry.getName()));
     }
 
 }

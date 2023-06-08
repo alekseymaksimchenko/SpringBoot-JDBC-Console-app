@@ -2,16 +2,18 @@ package com.foxminded.schoolapp.service;
 
 import java.util.List;
 
-public interface IStudentCourseService <T> {
+public interface GenericService<T> {
 
-    void save(T studentCourse);
+    void populate();
+
+    void save(T course);
 
     List<T> getAll();
 
     T getByID(int id);
 
-    void update(T studentCourse, String[] parameters);
+    void update(T course, String[] parameters);
 
     void deleteById(int id);
-    
+
 }

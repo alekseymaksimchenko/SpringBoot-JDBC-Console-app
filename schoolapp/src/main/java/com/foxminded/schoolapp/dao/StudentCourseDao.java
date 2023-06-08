@@ -1,10 +1,8 @@
-package com.foxminded.schoolapp.dao.impl;
+package com.foxminded.schoolapp.dao;
 
 import java.util.List;
 
-import com.foxminded.schoolapp.dao.GenericDao;
-
-public interface StudentCourse<T> extends GenericDao<T> {
+public interface StudentCourseDao<T> extends GenericDao<T> {
 
     int addStudentToCourse(T studentCourse);
 

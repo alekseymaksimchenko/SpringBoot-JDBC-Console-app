@@ -1,4 +1,4 @@
-package com.foxminded.schoolapp.service;
+package com.foxminded.schoolapp.service.generator;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -12,13 +12,13 @@ import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Service;
 
-import com.foxminded.schoolapp.entity.CourseEntity;
+import com.foxminded.schoolapp.dao.entity.CourseEntity;
 import com.foxminded.schoolapp.exception.DomainException;
 
-
-public class CoursesGenerator {
+@Service
+public class CoursesGenerator implements Generator<CourseEntity>{
 
     private static final String GET_MESSAGE = "Property file missing";
     private static final String PROP_KEY = "courseNames";
@@ -38,7 +38,7 @@ public class CoursesGenerator {
         }
     }
 
-
+    @Override
     public List<CourseEntity> generate() {
         LOGGER.debug("CoursesGenerator generate() - starts");
         List<CourseEntity> courseList = Stream.generate(CourseEntity::new).limit(courseNameList.size())

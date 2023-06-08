@@ -7,11 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.foxminded.schoolapp.dao.CourseRowMapper;
-import com.foxminded.schoolapp.entity.CourseEntity;
+import com.foxminded.schoolapp.dao.CourseDao;
+import com.foxminded.schoolapp.dao.entity.CourseEntity;
+import com.foxminded.schoolapp.dao.mapper.CourseRowMapper;
 
 @Repository
-public class CourseJdbcDao implements Course<CourseEntity> {
+public class CourseJdbcDao implements CourseDao<CourseEntity> {
 
     private final JdbcTemplate jdbcTemplate;
     private static final String SQL_SAVE = "INSERT INTO school.courses(name, description) VALUES (?, ?)";

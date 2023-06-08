@@ -1,11 +1,11 @@
-package com.foxminded.schoolapp.dao;
+package com.foxminded.schoolapp.dao.mapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
 
-import com.foxminded.schoolapp.entity.GroupEntity;
+import com.foxminded.schoolapp.dao.entity.GroupEntity;
 
 public class GroupRowMapper implements RowMapper<GroupEntity> {
 

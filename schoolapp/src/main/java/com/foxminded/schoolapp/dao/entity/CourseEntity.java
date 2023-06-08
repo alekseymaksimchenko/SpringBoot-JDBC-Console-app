@@ -1,4 +1,4 @@
-package com.foxminded.schoolapp.entity;
+package com.foxminded.schoolapp.dao.entity;
 
 import java.util.Objects;
 
@@ -22,7 +22,6 @@ public class CourseEntity {
         this.name = name;
         this.description = description;
     }
-
 
     public int getId() {
         return id;

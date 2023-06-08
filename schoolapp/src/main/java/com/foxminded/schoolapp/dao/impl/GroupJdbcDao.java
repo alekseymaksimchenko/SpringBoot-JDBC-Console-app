@@ -6,10 +6,11 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import com.foxminded.schoolapp.dao.GroupRowMapper;
-import com.foxminded.schoolapp.entity.GroupEntity;
+import com.foxminded.schoolapp.dao.GroupDao;
+import com.foxminded.schoolapp.dao.entity.GroupEntity;
+import com.foxminded.schoolapp.dao.mapper.GroupRowMapper;
 
-public class GroupJdbcDao implements Group<GroupEntity> {
+public class GroupJdbcDao implements GroupDao<GroupEntity> {
 
     private final JdbcTemplate jdbcTemplate;
     private static final String SQL_SAVE = "INSERT INTO school.groups (name) VALUES(?);";
@@ -48,7 +49,7 @@ public class GroupJdbcDao implements Group<GroupEntity> {
     @Override
     public int update(GroupEntity group, String[] parameters) {
         String newName = (parameters.length >= 1 && parameters[0] != null) ? parameters[0] : group.getName();
-        return jdbcTemplate.update(SQL_UPDATE, newName, group.getId());
+        return jdbcTemplate.update(SQL_UPDATE, newName, group.getGroup_id());
     }
 
     @Override

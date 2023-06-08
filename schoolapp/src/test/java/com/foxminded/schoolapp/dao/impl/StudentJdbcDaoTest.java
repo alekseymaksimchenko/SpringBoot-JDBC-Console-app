@@ -1,7 +1,5 @@
 package com.foxminded.schoolapp.dao.impl;
 
-
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -15,13 +13,13 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import com.foxminded.schoolapp.entity.StudentEntity;
-
+import com.foxminded.schoolapp.dao.entity.StudentEntity;
 
 @Testcontainers
 @JdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Sql(scripts = { "/clear_tables.sql", }, statements = "INSERT INTO school.groups (name) VALUES ('group1'), ('group2');" , executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = {
+        "/clear_tables.sql", }, statements = "INSERT INTO school.groups (name) VALUES ('group1'), ('group2');", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 class StudentJdbcDaoTest {
 
     @Container
@@ -33,17 +31,14 @@ class StudentJdbcDaoTest {
     private StudentJdbcDao studentJdbcDao;
     private StudentEntity testStudentEntity;
 
-
     @BeforeEach
     void setUp() {
         studentJdbcDao = new StudentJdbcDao(jdbcTemplate);
-        testStudentEntity = new StudentEntity("testName", "testDescription", 1);
+        testStudentEntity = new StudentEntity("testFirstname", "testLastname", 1);
     }
 
-
-
     @Test
-    void testStudentDao_ShouldCreateEntry() {
+    void testStudentJdbcDao_ShouldCreateEntry() {
         studentJdbcDao.save(testStudentEntity);
         int expected = 1;
         int actual = studentJdbcDao.getAll().size();
@@ -52,17 +47,20 @@ class StudentJdbcDaoTest {
     }
 
     @Test
-    void testStudentDao_ShouldFindByIdEntry() {
+    void testStudentJdbcDao_ShouldFindByIdEntry() {
         studentJdbcDao.save(testStudentEntity);
 
-        String expected = "StudentEntity [id=1, firstname=testName, lastname=testDescription, groupId=1]";
-        String actual = studentJdbcDao.getByID(1).get().toString();
+        String expectedFirstname = "testFirstname";
+        String expectedLastname = "testLastname";
 
-        assertEquals(expected, actual);
+        studentJdbcDao.getByID(1).ifPresent(student -> {
+            assertEquals(expectedFirstname, student.getFirstname());
+            assertEquals(expectedLastname, student.getLastname());
+        });
     }
 
     @Test
-    void testStudentDao_ShouldFindAllEntry() {
+    void testStudentJdbcDao_ShouldFindAllEntry() {
         studentJdbcDao.save(testStudentEntity);
         studentJdbcDao.save(testStudentEntity);
         studentJdbcDao.save(testStudentEntity);
@@ -73,21 +71,27 @@ class StudentJdbcDaoTest {
     }
 
     @Test
-    void testStudentDao_ShouldUpdateEntry()  {
+    void testStudentJdbcDao_ShouldUpdateEntry() {
         studentJdbcDao.save(testStudentEntity);
 
-        String[] update = {"Updated NEW_Firstname", "Updated NEW_Lastname"};
+        StudentEntity savedEntity = new StudentEntity(1, "testFirstname", "testLastname", 1);
+        String[] update = { "Updated NEW_Firstname", "Updated NEW_Lastname" };
 
-        studentJdbcDao.update(testStudentEntity, update);
+        studentJdbcDao.update(savedEntity, update);
 
-        String expected = "StudentEntity [id=1, firstname=testName, lastname=testDescription, groupId=1]";
-        String actual = studentJdbcDao.getByID(1).get().toString();
+        String expectedFirstname = "Updated NEW_Firstname";
+        String expectedLastname = "Updated NEW_Lastname";
 
-        assertEquals(expected, actual);
+        studentJdbcDao.getByID(1).ifPresent(student -> {
+            assertEquals(expectedFirstname, student.getFirstname());
+            assertEquals(expectedLastname, student.getLastname());
+        });
+        ;
+
     }
 
     @Test
-    void testStudentDao_ShouldDeleteEntry() {
+    void testStudentJdbcDao_ShouldDeleteEntry() {
         studentJdbcDao.save(testStudentEntity);
         studentJdbcDao.save(testStudentEntity);
         studentJdbcDao.save(testStudentEntity);
