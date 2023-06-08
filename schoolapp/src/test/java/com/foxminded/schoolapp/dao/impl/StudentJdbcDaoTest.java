@@ -86,7 +86,7 @@ class StudentJdbcDaoTest {
             assertEquals(expectedFirstname, student.getFirstname());
             assertEquals(expectedLastname, student.getLastname());
         });
-        ;
+
 
     }
 

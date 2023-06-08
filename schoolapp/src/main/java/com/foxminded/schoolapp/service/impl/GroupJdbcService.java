@@ -7,17 +7,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.foxminded.schoolapp.dao.GenericDao;
+
+import com.foxminded.schoolapp.dao.GroupDao;
 import com.foxminded.schoolapp.dao.entity.GroupEntity;
 import com.foxminded.schoolapp.exception.NotFoundException;
 import com.foxminded.schoolapp.exception.UnsuccessfulOperationException;
 import com.foxminded.schoolapp.service.GroupService;
+import com.foxminded.schoolapp.service.PopulateGeneratedData;
 import com.foxminded.schoolapp.service.generator.Generator;
 
 @Service
-public class GroupJdbcService implements GroupService<GroupEntity> {
+public class GroupJdbcService implements GroupService<GroupEntity>, PopulateGeneratedData {
 
-    private final GenericDao<GroupEntity> groupDao;
+    private final GroupDao<GroupEntity> groupDao;
     private final Generator<GroupEntity> groupGenerator;
     private static final Logger LOGGER = LoggerFactory.getLogger(GroupJdbcService.class);
     private static final String NOT_SAVED = "Record was NOT saved due to unknown reason";
@@ -25,9 +27,10 @@ public class GroupJdbcService implements GroupService<GroupEntity> {
     private static final String NOT_UPDATED = "Record was NOT updated due to unknown reason";
     private static final String NOT_DELETED = "Record was NOT deleted due to unknown reason";
     private static final String NOT_EXIST = "Record under provided id - not exist";
+    private static final String IS_EMPTY = "Table doesn't contain any Records";
 
     @Autowired
-    public GroupJdbcService(GenericDao<GroupEntity> groupDao, Generator<GroupEntity> groupGenerator) {
+    public GroupJdbcService(GroupDao<GroupEntity> groupDao, Generator<GroupEntity> groupGenerator) {
         this.groupDao = groupDao;
         this.groupGenerator = groupGenerator;
     }
@@ -55,7 +58,12 @@ public class GroupJdbcService implements GroupService<GroupEntity> {
     @Override
     public List<GroupEntity> getAll() {
         LOGGER.debug("GroupJdbcService getAll - starts");
-        return groupDao.getAll();
+        List<GroupEntity> result = groupDao.getAll();
+        if (!result.isEmpty()) {
+            return result;
+        } else {
+            throw new NotFoundException(IS_EMPTY);
+        }
     }
 
     @Override
@@ -84,6 +92,13 @@ public class GroupJdbcService implements GroupService<GroupEntity> {
         } else {
             throw new NotFoundException(NOT_EXIST);
         }
+    }
+    
+    @Override
+    public List<GroupEntity> getAllGroupsAccordingStudentCount(int count) {
+        LOGGER.debug("GroupService getAllGroupsAccordingStudentCount - starts with students count = {}",
+                count);
+        return groupDao.getAllGroupsAccordingStudentCount(count);
     }
 
 }

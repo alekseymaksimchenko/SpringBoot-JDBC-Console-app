@@ -7,18 +7,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
-import com.foxminded.schoolapp.dao.GenericDao;
+import com.foxminded.schoolapp.dao.CourseDao;
 import com.foxminded.schoolapp.dao.entity.CourseEntity;
 import com.foxminded.schoolapp.exception.NotFoundException;
 import com.foxminded.schoolapp.exception.UnsuccessfulOperationException;
 import com.foxminded.schoolapp.service.CourseService;
+import com.foxminded.schoolapp.service.PopulateGeneratedData;
 import com.foxminded.schoolapp.service.generator.Generator;
 
 @Service
-public class CourseJdbcService implements CourseService<CourseEntity> {
+public class CourseJdbcService implements CourseService<CourseEntity>, PopulateGeneratedData {
 
-    private final GenericDao<CourseEntity> courseDao;
+    private final CourseDao<CourseEntity> courseDao;
     private final Generator<CourseEntity> courseGenerator;
     private static final Logger LOGGER = LoggerFactory.getLogger(CourseJdbcService.class);
     private static final String NOT_SAVED = "Record was NOT saved due to unknown reason";
@@ -26,9 +26,10 @@ public class CourseJdbcService implements CourseService<CourseEntity> {
     private static final String NOT_UPDATED = "Record was NOT updated due to unknown reason";
     private static final String NOT_DELETED = "Record was NOT deleted due to unknown reason";
     private static final String NOT_EXIST = "Record under provided id - not exist";
-
+    private static final String IS_EMPTY = "Table doesn't contain any Records";
+    
     @Autowired
-    public CourseJdbcService(GenericDao<CourseEntity> courseDao, Generator<CourseEntity> courseGenerator) {
+    public CourseJdbcService(CourseDao<CourseEntity> courseDao, Generator<CourseEntity> courseGenerator) {
         this.courseDao = courseDao;
         this.courseGenerator = courseGenerator;
     }
@@ -42,7 +43,6 @@ public class CourseJdbcService implements CourseService<CourseEntity> {
                 throw new UnsuccessfulOperationException(GENERATED_RECORD_NOT_SAVED);
             }
         });
-
     }
 
     @Override
@@ -57,7 +57,12 @@ public class CourseJdbcService implements CourseService<CourseEntity> {
     @Override
     public List<CourseEntity> getAll() {
         LOGGER.debug("CourseJdbcService getAll - starts");
-        return courseDao.getAll();
+        List<CourseEntity> result = courseDao.getAll();
+        if (!result.isEmpty()) {
+            return result;
+        } else {
+            throw new NotFoundException(IS_EMPTY);
+        }
     }
 
     @Override

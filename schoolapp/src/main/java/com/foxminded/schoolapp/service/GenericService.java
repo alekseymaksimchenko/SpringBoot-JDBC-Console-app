@@ -4,8 +4,6 @@ import java.util.List;
 
 public interface GenericService<T> {
 
-    void populate();
-
     void save(T course);
 
     List<T> getAll();

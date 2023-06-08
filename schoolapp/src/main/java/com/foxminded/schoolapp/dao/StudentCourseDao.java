@@ -2,7 +2,7 @@ package com.foxminded.schoolapp.dao;
 
 import java.util.List;
 
-public interface StudentCourseDao<T> extends GenericDao<T> {
+public interface StudentCourseDao<T> extends GenericDao<T>  {
 
     int addStudentToCourse(T studentCourse);
 
