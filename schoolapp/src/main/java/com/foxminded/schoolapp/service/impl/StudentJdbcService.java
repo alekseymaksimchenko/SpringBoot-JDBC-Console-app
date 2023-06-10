@@ -22,7 +22,6 @@ public class StudentJdbcService implements StudentService<StudentEntity>, Popula
     private final Generator<StudentEntity> studentGenerator;
     private static final Logger LOGGER = LoggerFactory.getLogger(StudentJdbcService.class);
     private static final String NOT_SAVED = "Record was NOT saved due to unknown reason";
-    private static final String GENERATED_RECORD_NOT_SAVED = "Generated Record was NOT saved during populate method due to unknown reason";
     private static final String NOT_UPDATED = "Record was NOT updated due to unknown reason";
     private static final String NOT_DELETED = "Record was NOT deleted due to unknown reason";
     private static final String NOT_EXIST = "Record under provided id - not exist";
@@ -37,12 +36,7 @@ public class StudentJdbcService implements StudentService<StudentEntity>, Popula
     @Override
     public void populate() {
         LOGGER.debug("StudentJdbcService populate - starts");
-        studentGenerator.generate().forEach(student -> {
-            int result = studentDao.save(student);
-            if (result != 1) {
-                throw new UnsuccessfulOperationException(GENERATED_RECORD_NOT_SAVED);
-            }
-        });
+        studentGenerator.generate().forEach(student -> studentDao.save(student));
     }
 
     @Override

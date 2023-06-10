@@ -22,12 +22,11 @@ public class CourseJdbcService implements CourseService<CourseEntity>, PopulateG
     private final Generator<CourseEntity> courseGenerator;
     private static final Logger LOGGER = LoggerFactory.getLogger(CourseJdbcService.class);
     private static final String NOT_SAVED = "Record was NOT saved due to unknown reason";
-    private static final String GENERATED_RECORD_NOT_SAVED = "Generated Record was NOT saved during populate method due to unknown reason";
     private static final String NOT_UPDATED = "Record was NOT updated due to unknown reason";
     private static final String NOT_DELETED = "Record was NOT deleted due to unknown reason";
     private static final String NOT_EXIST = "Record under provided id - not exist";
     private static final String IS_EMPTY = "Table doesn't contain any Records";
-    
+
     @Autowired
     public CourseJdbcService(CourseDao<CourseEntity> courseDao, Generator<CourseEntity> courseGenerator) {
         this.courseDao = courseDao;
@@ -35,14 +34,9 @@ public class CourseJdbcService implements CourseService<CourseEntity>, PopulateG
     }
 
     @Override
-    public void populate() {
+    public void populate() throws UnsuccessfulOperationException {
         LOGGER.debug("CourseJdbcService populate - starts");
-        courseGenerator.generate().forEach(course -> {
-            int result = courseDao.save(course);
-            if (result != 1) {
-                throw new UnsuccessfulOperationException(GENERATED_RECORD_NOT_SAVED);
-            }
-        });
+        courseGenerator.generate().forEach(courseDao::save);
     }
 
     @Override

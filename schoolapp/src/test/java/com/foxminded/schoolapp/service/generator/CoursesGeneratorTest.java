@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-
 import com.foxminded.schoolapp.dao.entity.CourseEntity;
 import com.foxminded.schoolapp.exception.DomainException;
 
@@ -35,13 +34,12 @@ class CoursesGeneratorTest {
     private static final String PATH = "./src/test/resources/generatorsConfigurationTest.properties";
     private static final int COURSE_QUANTITY = NAME_LIST.size();
 
- 
     private CoursesGenerator course;
     private List<CourseEntity> courseList;
 
     @BeforeEach
     public void initEach() throws Exception {
-       course = new CoursesGenerator(PATH);
+        course = new CoursesGenerator(PATH);
         courseList = course.generate();
     }
 

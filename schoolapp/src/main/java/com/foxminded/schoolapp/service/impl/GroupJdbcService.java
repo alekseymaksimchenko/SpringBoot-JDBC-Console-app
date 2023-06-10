@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
 import com.foxminded.schoolapp.dao.GroupDao;
 import com.foxminded.schoolapp.dao.entity.GroupEntity;
 import com.foxminded.schoolapp.exception.NotFoundException;
@@ -23,7 +22,6 @@ public class GroupJdbcService implements GroupService<GroupEntity>, PopulateGene
     private final Generator<GroupEntity> groupGenerator;
     private static final Logger LOGGER = LoggerFactory.getLogger(GroupJdbcService.class);
     private static final String NOT_SAVED = "Record was NOT saved due to unknown reason";
-    private static final String GENERATED_RECORD_NOT_SAVED = "Generated Record was NOT saved during populate method due to unknown reason";
     private static final String NOT_UPDATED = "Record was NOT updated due to unknown reason";
     private static final String NOT_DELETED = "Record was NOT deleted due to unknown reason";
     private static final String NOT_EXIST = "Record under provided id - not exist";
@@ -38,12 +36,7 @@ public class GroupJdbcService implements GroupService<GroupEntity>, PopulateGene
     @Override
     public void populate() {
         LOGGER.debug("GroupJdbcService populate - starts");
-        groupGenerator.generate().forEach(group -> {
-            int result = groupDao.save(group);
-            if (result != 1) {
-                throw new UnsuccessfulOperationException(GENERATED_RECORD_NOT_SAVED);
-            }
-        });
+        groupGenerator.generate().forEach(group -> groupDao.save(group));
     }
 
     @Override
@@ -93,12 +86,15 @@ public class GroupJdbcService implements GroupService<GroupEntity>, PopulateGene
             throw new NotFoundException(NOT_EXIST);
         }
     }
-    
+
     @Override
     public List<GroupEntity> getAllGroupsAccordingStudentCount(int count) {
-        LOGGER.debug("GroupService getAllGroupsAccordingStudentCount - starts with students count = {}",
-                count);
-        return groupDao.getAllGroupsAccordingStudentCount(count);
+        LOGGER.debug("GroupService getAllGroupsAccordingStudentCount - starts with students count = {}", count);
+        List<GroupEntity> result = groupDao.getAllGroupsAccordingStudentCount(count);
+        if (!result.isEmpty()) {
+            return result;
+        } else {
+            throw new NotFoundException(IS_EMPTY);
+        }
     }
-
 }
