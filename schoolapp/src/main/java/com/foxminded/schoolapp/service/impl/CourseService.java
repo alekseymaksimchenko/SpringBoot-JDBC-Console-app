@@ -9,39 +9,39 @@ import org.springframework.stereotype.Service;
 
 import com.foxminded.schoolapp.dao.CourseDao;
 import com.foxminded.schoolapp.dao.entity.CourseEntity;
+import com.foxminded.schoolapp.exception.DaoException;
 import com.foxminded.schoolapp.exception.NotFoundException;
 import com.foxminded.schoolapp.exception.UnsuccessfulOperationException;
-import com.foxminded.schoolapp.service.CourseService;
+import com.foxminded.schoolapp.service.CourseServices;
 import com.foxminded.schoolapp.service.PopulateGeneratedData;
 import com.foxminded.schoolapp.service.generator.Generator;
 
 @Service
-public class CourseJdbcService implements CourseService<CourseEntity>, PopulateGeneratedData {
+public class CourseService implements CourseServices<CourseEntity>, PopulateGeneratedData {
 
     private final CourseDao<CourseEntity> courseDao;
     private final Generator<CourseEntity> courseGenerator;
-    private static final Logger LOGGER = LoggerFactory.getLogger(CourseJdbcService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CourseService.class);
     private static final String NOT_SAVED = "Record was NOT saved due to unknown reason";
     private static final String NOT_UPDATED = "Record was NOT updated due to unknown reason";
     private static final String NOT_DELETED = "Record was NOT deleted due to unknown reason";
-    private static final String NOT_EXIST = "Record under provided id - not exist";
     private static final String IS_EMPTY = "Table doesn't contain any Records";
 
     @Autowired
-    public CourseJdbcService(CourseDao<CourseEntity> courseDao, Generator<CourseEntity> courseGenerator) {
+    public CourseService(CourseDao<CourseEntity> courseDao, Generator<CourseEntity> courseGenerator) {
         this.courseDao = courseDao;
         this.courseGenerator = courseGenerator;
     }
 
     @Override
-    public void populate() throws UnsuccessfulOperationException {
-        LOGGER.debug("CourseJdbcService populate - starts");
+    public void populate() {
+        LOGGER.debug("CourseService populate - starts");
         courseGenerator.generate().forEach(courseDao::save);
     }
 
     @Override
     public void save(CourseEntity course) {
-        LOGGER.debug("CourseJdbcService save ({}) - starts", course);
+        LOGGER.debug("CourseService save ({}) - starts", course);
         int result = courseDao.save(course);
         if (result != 1) {
             throw new UnsuccessfulOperationException(NOT_SAVED);
@@ -50,7 +50,7 @@ public class CourseJdbcService implements CourseService<CourseEntity>, PopulateG
 
     @Override
     public List<CourseEntity> getAll() {
-        LOGGER.debug("CourseJdbcService getAll - starts");
+        LOGGER.debug("CourseService getAll - starts");
         List<CourseEntity> result = courseDao.getAll();
         if (!result.isEmpty()) {
             return result;
@@ -61,14 +61,18 @@ public class CourseJdbcService implements CourseService<CourseEntity>, PopulateG
 
     @Override
     public CourseEntity getByID(int id) {
-        LOGGER.debug("CourseJdbcService getByID - starts with id = {}", id);
-        return courseDao.getByID(id).orElseThrow(() -> new NotFoundException(NOT_EXIST));
+        LOGGER.debug("CourseService getByID - starts with id = {}", id);
+        try {
+            return courseDao.getByID(id);
+        } catch (DaoException e) {
+            throw new NotFoundException(e.getMessage());
+        }
     }
 
     @Override
-    public void update(CourseEntity course, String[] parameters) {
-        LOGGER.debug("CourseJdbcService update ({}) - starts with parameters ({})", course, parameters);
-        int result = courseDao.update(course, parameters);
+    public void update(CourseEntity course) {
+        LOGGER.debug("CourseService update ({}) - starts", course);
+        int result = courseDao.update(course);
         if (result != 1) {
             throw new UnsuccessfulOperationException(NOT_UPDATED);
         }
@@ -76,15 +80,15 @@ public class CourseJdbcService implements CourseService<CourseEntity>, PopulateG
 
     @Override
     public void deleteById(int id) {
-        LOGGER.debug("CourseJdbcService deleteById starts with id = {}", id);
-        if (courseDao.getByID(id).isPresent()) {
+        LOGGER.debug("CourseService deleteById starts with id = {}", id);
+        try {
+            courseDao.getByID(id);
             int result = courseDao.deleteById(id);
             if (result != 1) {
                 throw new UnsuccessfulOperationException(NOT_DELETED);
             }
-        } else {
-            throw new NotFoundException(NOT_EXIST);
+        } catch (DaoException e) {
+            throw new NotFoundException(e.getMessage());
         }
     }
-
 }

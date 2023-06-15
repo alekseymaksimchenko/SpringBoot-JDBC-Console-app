@@ -12,13 +12,13 @@ public class CourseEntity {
         super();
     }
 
-    public CourseEntity(int id, String name, String description) {
-        this.id = id;
+    public CourseEntity(String name, String description) {
         this.name = name;
         this.description = description;
     }
 
-    public CourseEntity(String name, String description) {
+    public CourseEntity(int id, String name, String description) {
+        this.id = id;
         this.name = name;
         this.description = description;
     }
@@ -56,9 +56,7 @@ public class CourseEntity {
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
+        if ((obj == null) || (getClass() != obj.getClass()))
             return false;
         CourseEntity other = (CourseEntity) obj;
         return Objects.equals(description, other.description) && id == other.id && Objects.equals(name, other.name);

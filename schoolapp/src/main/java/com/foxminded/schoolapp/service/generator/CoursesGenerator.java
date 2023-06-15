@@ -18,7 +18,7 @@ import com.foxminded.schoolapp.dao.entity.CourseEntity;
 import com.foxminded.schoolapp.exception.DomainException;
 
 @Service
-public class CoursesGenerator implements Generator<CourseEntity>{
+public class CoursesGenerator implements Generator<CourseEntity> {
 
     private static final String GET_MESSAGE = "Property file missing";
     private static final String PROP_KEY = "courseNames";

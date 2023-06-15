@@ -11,18 +11,16 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import com.foxminded.schoolapp.dao.entity.GroupEntity;
 import com.foxminded.schoolapp.exception.DomainException;
 
-@SpringBootTest(classes = {GroupsGenerator.class})
 class GroupsGeneratorTest {
 
     private static final int GROUPS_QUANTITY = 11;
     private static final char HYPHEN = '-';
     private static final String PATH = "./src/test/resources/generatorsConfigurationTest.properties";
-    
+
     private GroupsGenerator group;
     private List<GroupEntity> groupList;
 
@@ -67,7 +65,6 @@ class GroupsGeneratorTest {
 
     @Test
     void testGroupsGenerator_thatGroupNamesInListAreDifferent() {
-
         int actual = groupList.stream().map(s -> s.getName()).distinct().collect(Collectors.toList()).size();
         int expected = GROUPS_QUANTITY;
 

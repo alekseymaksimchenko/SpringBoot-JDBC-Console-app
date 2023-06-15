@@ -16,11 +16,8 @@ public class StudentRowMapper implements RowMapper<StudentEntity> {
 
     @Override
     public StudentEntity mapRow(ResultSet resultSet, int rowNumber) throws SQLException {
-        return new StudentEntity(
-                resultSet.getInt(STUDENT_ID),
-                resultSet.getString(STUDENT_FIRSTNAME),
-                resultSet.getString(STUDENT_LASTNAME),
-                resultSet.getInt(STUDENT_GROUP_ID));
+        return new StudentEntity(resultSet.getInt(STUDENT_ID), resultSet.getString(STUDENT_FIRSTNAME),
+                resultSet.getString(STUDENT_LASTNAME), resultSet.getInt(STUDENT_GROUP_ID));
     }
 
 }

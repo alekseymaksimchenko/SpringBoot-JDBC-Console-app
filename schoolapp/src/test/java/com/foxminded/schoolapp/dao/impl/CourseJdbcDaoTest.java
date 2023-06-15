@@ -1,6 +1,7 @@
 package com.foxminded.schoolapp.dao.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.foxminded.schoolapp.dao.entity.CourseEntity;
+import com.foxminded.schoolapp.exception.DaoException;
 
 @Testcontainers
 @JdbcTest
@@ -30,7 +32,8 @@ class CourseJdbcDaoTest {
     private JdbcTemplate jdbcTemplate;
     private CourseJdbcDao courseJdbcDao;
     private CourseEntity testCourseEntity;
-
+    private static final String GET_BY_ID_EXCEPTION = "Record under provided id - not exist";
+    
     @BeforeEach
     void setUp() {
         courseJdbcDao = new CourseJdbcDao(jdbcTemplate);
@@ -53,10 +56,9 @@ class CourseJdbcDaoTest {
         String expectedName = "testName";
         String expectedDescription = "testDescription";
 
-        courseJdbcDao.getByID(1).ifPresent(s -> {
-            assertEquals(expectedName, s.getName());
-            assertEquals(expectedDescription, s.getDescription());
-        });
+        CourseEntity actual = courseJdbcDao.getByID(1);
+        assertEquals(expectedName, actual.getName());
+        assertEquals(expectedDescription, actual.getDescription());
     }
 
     @Test
@@ -74,18 +76,16 @@ class CourseJdbcDaoTest {
     void testCourseJdbcDao_ShouldUpdateEntry() {
         courseJdbcDao.save(testCourseEntity);
 
-        CourseEntity savedEntiry = new CourseEntity(1, "testName", "testDescription");
-        String[] update = { "Updated Bio", "Updated Bio" };
+        CourseEntity updatedEntiry = new CourseEntity(1, "Updated Bio", "Updated Bio");
 
-        courseJdbcDao.update(savedEntiry, update);
+        courseJdbcDao.update(updatedEntiry);
 
         String expectedName = "Updated Bio";
         String expectedDescription = "Updated Bio";
 
-        courseJdbcDao.getByID(1).ifPresent(s -> {
-            assertEquals(expectedName, s.getName());
-            assertEquals(expectedDescription, s.getDescription());
-        });
+        CourseEntity actual = courseJdbcDao.getByID(1);
+        assertEquals(expectedName, actual.getName());
+        assertEquals(expectedDescription, actual.getDescription());
     }
 
     @Test
@@ -100,4 +100,14 @@ class CourseJdbcDaoTest {
         int actual = courseJdbcDao.getAll().size();
         assertEquals(expected, actual);
     }
+
+    @Test
+    void testCourseJdbcDao_ShouldReturnException_inCaseOfNotFoundId() {
+        Exception exception = assertThrows(DaoException.class, () -> courseJdbcDao.getByID(0));
+
+        String actual = exception.getMessage();
+        String expected = GET_BY_ID_EXCEPTION;
+        assertEquals(expected, actual);
+    }
+
 }

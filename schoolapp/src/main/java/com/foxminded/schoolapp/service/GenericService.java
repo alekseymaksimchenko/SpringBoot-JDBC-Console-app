@@ -10,7 +10,7 @@ public interface GenericService<T> {
 
     T getByID(int id);
 
-    void update(T course, String[] parameters);
+    void update(T course);
 
     void deleteById(int id);
 

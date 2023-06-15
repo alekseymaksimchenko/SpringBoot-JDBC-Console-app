@@ -14,6 +14,7 @@ public class StudentEntity {
     }
 
     public StudentEntity(int id, String firstname, String lastname, int groupId) {
+        super();
         this.id = id;
         this.firstname = firstname;
         this.lastname = lastname;
@@ -21,11 +22,11 @@ public class StudentEntity {
     }
 
     public StudentEntity(String firstname, String lastname, int groupId) {
+        super();
         this.firstname = firstname;
         this.lastname = lastname;
         this.groupId = groupId;
     }
-
 
     public int getId() {
         return id;
@@ -68,9 +69,7 @@ public class StudentEntity {
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
+        if ((obj == null) || (getClass() != obj.getClass()))
             return false;
         StudentEntity other = (StudentEntity) obj;
         return Objects.equals(firstname, other.firstname) && groupId == other.groupId && id == other.id

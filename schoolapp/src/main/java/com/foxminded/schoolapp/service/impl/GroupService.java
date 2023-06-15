@@ -9,39 +9,39 @@ import org.springframework.stereotype.Service;
 
 import com.foxminded.schoolapp.dao.GroupDao;
 import com.foxminded.schoolapp.dao.entity.GroupEntity;
+import com.foxminded.schoolapp.exception.DaoException;
 import com.foxminded.schoolapp.exception.NotFoundException;
 import com.foxminded.schoolapp.exception.UnsuccessfulOperationException;
-import com.foxminded.schoolapp.service.GroupService;
+import com.foxminded.schoolapp.service.GroupServices;
 import com.foxminded.schoolapp.service.PopulateGeneratedData;
 import com.foxminded.schoolapp.service.generator.Generator;
 
 @Service
-public class GroupJdbcService implements GroupService<GroupEntity>, PopulateGeneratedData {
+public class GroupService implements GroupServices<GroupEntity>, PopulateGeneratedData {
 
     private final GroupDao<GroupEntity> groupDao;
     private final Generator<GroupEntity> groupGenerator;
-    private static final Logger LOGGER = LoggerFactory.getLogger(GroupJdbcService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GroupService.class);
     private static final String NOT_SAVED = "Record was NOT saved due to unknown reason";
     private static final String NOT_UPDATED = "Record was NOT updated due to unknown reason";
     private static final String NOT_DELETED = "Record was NOT deleted due to unknown reason";
-    private static final String NOT_EXIST = "Record under provided id - not exist";
     private static final String IS_EMPTY = "Table doesn't contain any Records";
 
     @Autowired
-    public GroupJdbcService(GroupDao<GroupEntity> groupDao, Generator<GroupEntity> groupGenerator) {
+    public GroupService(GroupDao<GroupEntity> groupDao, Generator<GroupEntity> groupGenerator) {
         this.groupDao = groupDao;
         this.groupGenerator = groupGenerator;
     }
 
     @Override
     public void populate() {
-        LOGGER.debug("GroupJdbcService populate - starts");
-        groupGenerator.generate().forEach(group -> groupDao.save(group));
+        LOGGER.debug("GroupService populate - starts");
+        groupGenerator.generate().forEach(groupDao::save);
     }
 
     @Override
     public void save(GroupEntity group) {
-        LOGGER.debug("GroupJdbcService save ({}) - starts", group);
+        LOGGER.debug("GroupService save ({}) - starts", group);
         int result = groupDao.save(group);
         if (result != 1) {
             throw new UnsuccessfulOperationException(NOT_SAVED);
@@ -50,7 +50,7 @@ public class GroupJdbcService implements GroupService<GroupEntity>, PopulateGene
 
     @Override
     public List<GroupEntity> getAll() {
-        LOGGER.debug("GroupJdbcService getAll - starts");
+        LOGGER.debug("GroupService getAll - starts");
         List<GroupEntity> result = groupDao.getAll();
         if (!result.isEmpty()) {
             return result;
@@ -61,14 +61,18 @@ public class GroupJdbcService implements GroupService<GroupEntity>, PopulateGene
 
     @Override
     public GroupEntity getByID(int id) {
-        LOGGER.debug("GroupJdbcService getByID - starts with id = {}", id);
-        return groupDao.getByID(id).orElseThrow(() -> new NotFoundException(NOT_EXIST));
+        LOGGER.debug("GroupService getByID - starts with id = {}", id);
+        try {
+            return groupDao.getByID(id);
+        } catch (DaoException e) {
+            throw new NotFoundException(e.getMessage());
+        }
     }
 
     @Override
-    public void update(GroupEntity group, String[] parameters) {
-        LOGGER.debug("GroupJdbcService update ({}) - starts with parameters ({})", group, parameters);
-        int result = groupDao.update(group, parameters);
+    public void update(GroupEntity group) {
+        LOGGER.debug("GroupService update ({}) - starts", group);
+        int result = groupDao.update(group);
         if (result != 1) {
             throw new UnsuccessfulOperationException(NOT_UPDATED);
         }
@@ -76,14 +80,15 @@ public class GroupJdbcService implements GroupService<GroupEntity>, PopulateGene
 
     @Override
     public void deleteById(int id) {
-        LOGGER.debug("GroupJdbcService deleteById starts with id = {}", id);
-        if (groupDao.getByID(id).isPresent()) {
+        LOGGER.debug("GroupService deleteById starts with id = {}", id);
+        try {
+            groupDao.getByID(id);
             int result = groupDao.deleteById(id);
             if (result != 1) {
                 throw new UnsuccessfulOperationException(NOT_DELETED);
             }
-        } else {
-            throw new NotFoundException(NOT_EXIST);
+        } catch (DaoException e) {
+            throw new NotFoundException(e.getMessage());
         }
     }
 

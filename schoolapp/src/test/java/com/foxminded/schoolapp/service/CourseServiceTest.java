@@ -12,7 +12,6 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
@@ -26,10 +25,10 @@ import com.foxminded.schoolapp.dao.impl.CourseJdbcDao;
 import com.foxminded.schoolapp.exception.NotFoundException;
 import com.foxminded.schoolapp.exception.UnsuccessfulOperationException;
 import com.foxminded.schoolapp.service.generator.CoursesGenerator;
-import com.foxminded.schoolapp.service.impl.CourseJdbcService;
+import com.foxminded.schoolapp.service.impl.CourseService;
 
-@SpringBootTest(classes = { CourseJdbcService.class })
-class CourseJdbcServiceTest extends BasicServiceTest {
+@SpringBootTest(classes = { CourseService.class })
+class CourseServiceTest extends BasicServiceTest {
 
     @MockBean
     private CourseJdbcDao courseJdbcDao;
@@ -41,28 +40,24 @@ class CourseJdbcServiceTest extends BasicServiceTest {
     private CourseEntity testCourseEntity;
 
     @Autowired
-    private CourseJdbcService courseJdbcService;
+    private CourseService courseService;
 
-    private static final Optional<CourseEntity> EMPTY_OPTIONAL = Optional.empty();
-    private static final Optional<CourseEntity> NOT_EMPTY_OPTIONAL = Optional.of(new CourseEntity());
     private static final List<CourseEntity> EMPTY_LIST = new ArrayList<>();
     private static final List<CourseEntity> NOT_EMPTY_LIST = new ArrayList<>(Arrays.asList(new CourseEntity()));
 
-
     @Test
-    void testCourseJdbcService_populateShouldPass() {
+    void testCourseService_populateShouldPass() {
         when(courseJdbcDao.save(testCourseEntity)).thenReturn(POSITIVE_OPERATION_RETURN);
 
-        assertAll(() -> courseJdbcService.populate());
+        assertAll(() -> courseService.populate());
     }
 
     @Test
-    void testCourseJdbcService_populateShouldCallGeneratorAndDaoRightTimesInRightOrder() {
-
+    void testCourseService_populateShouldCallGeneratorAndDaoRightTimesInRightOrder() {
         when(courseGenerator.generate()).thenReturn(Arrays.asList(testCourseEntity));
         when(courseJdbcDao.save(testCourseEntity)).thenReturn(POSITIVE_OPERATION_RETURN);
 
-        courseJdbcService.populate();
+        courseService.populate();
         verify(courseGenerator, times(1)).generate();
         verify(courseJdbcDao, atLeastOnce()).save(testCourseEntity);
 
@@ -73,25 +68,25 @@ class CourseJdbcServiceTest extends BasicServiceTest {
     }
 
     @Test
-    void testCourseJdbcService_saveShouldPass() {
+    void testCourseService_saveShouldPass() {
         when(courseJdbcDao.save(testCourseEntity)).thenReturn(POSITIVE_OPERATION_RETURN);
 
-        assertAll(() -> courseJdbcService.save(testCourseEntity));
+        assertAll(() -> courseService.save(testCourseEntity));
     }
 
     @Test
-    void testCourseJdbcService_saveShouldCallDaoOneTime() {
+    void testCourseService_saveShouldCallDaoOneTime() {
         when(courseJdbcDao.save(testCourseEntity)).thenReturn(POSITIVE_OPERATION_RETURN);
-        courseJdbcService.save(testCourseEntity);
+        courseService.save(testCourseEntity);
 
         verify(courseJdbcDao, times(1)).save(testCourseEntity);
     }
 
     @Test
-    void testCourseJdbcService_saveShouldThrowExeption_whenUnsuccessful() {
+    void testCourseService_saveShouldThrowExeption_whenUnsuccessful() {
         when(courseJdbcDao.save(testCourseEntity)).thenReturn(NEGATIVE_OPERATION_RETURN);
         Exception exception = assertThrows(UnsuccessfulOperationException.class,
-                () -> courseJdbcService.save(testCourseEntity));
+                () -> courseService.save(testCourseEntity));
 
         String expected = NOT_SAVED;
         String actual = exception.getMessage();
@@ -100,24 +95,24 @@ class CourseJdbcServiceTest extends BasicServiceTest {
     }
 
     @Test
-    void testCourseJdbcService_getAllShouldPass() {
+    void testCourseService_getAllShouldPass() {
         when(courseJdbcDao.getAll()).thenReturn(NOT_EMPTY_LIST);
 
-        assertAll(() -> courseJdbcService.getAll());
+        assertAll(() -> courseService.getAll());
     }
 
     @Test
-    void testCourseJdbcService_getAllShouldCallDaoOneTime() {
+    void testCourseService_getAllShouldCallDaoOneTime() {
         when(courseJdbcDao.getAll()).thenReturn(NOT_EMPTY_LIST);
-        courseJdbcService.getAll();
+        courseService.getAll();
 
         verify(courseJdbcDao, times(1)).getAll();
     }
 
     @Test
-    void testCourseJdbcService_getAllShouldThrowExeption_whenReturnEmptyList() {
+    void testCourseService_getAllShouldThrowExeption_whenReturnEmptyList() {
         when(courseJdbcDao.getAll()).thenReturn(EMPTY_LIST);
-        Exception exception = assertThrows(NotFoundException.class, () -> courseJdbcService.getAll());
+        Exception exception = assertThrows(NotFoundException.class, () -> courseService.getAll());
 
         String expected = IS_EMPTY;
         String actual = exception.getMessage();
@@ -126,51 +121,40 @@ class CourseJdbcServiceTest extends BasicServiceTest {
     }
 
     @Test
-    void testCourseJdbcService_getByIDShouldPass() {
-        when(courseJdbcDao.getByID(1)).thenReturn(NOT_EMPTY_OPTIONAL);
+    void testCourseService_getByIDShouldPass() throws Exception {
+        when(courseJdbcDao.getByID(1)).thenReturn(testCourseEntity);
 
-        assertAll(() -> courseJdbcService.getByID(1));
+        assertAll(() -> courseService.getByID(1));
     }
 
     @Test
-    void testCourseJdbcService_getByIDShouldCallDaoOneTime() {
-        when(courseJdbcDao.getByID(1)).thenReturn(NOT_EMPTY_OPTIONAL);
-        courseJdbcService.getByID(1);
+    void testCourseService_getByIDShouldCallDaoOneTime() throws Exception {
+        when(courseJdbcDao.getByID(1)).thenReturn(testCourseEntity);
+        courseService.getByID(1);
 
         verify(courseJdbcDao, times(1)).getByID(1);
     }
 
     @Test
-    void testCourseJdbcService_getByIDShouldThrowExeption_whenNotFoundRecord() {
-        when(courseJdbcDao.getByID(1)).thenReturn(EMPTY_OPTIONAL);
-        Exception exception = assertThrows(NotFoundException.class, () -> courseJdbcService.getByID(1));
+    void testCourseService_updateShouldPass() {
+        when(courseJdbcDao.update(testCourseEntity)).thenReturn(POSITIVE_OPERATION_RETURN);
 
-        String expected = NOT_EXIST;
-        String actual = exception.getMessage();
-
-        assertEquals(expected, actual);
+        assertAll(() -> courseService.update(testCourseEntity));
     }
 
     @Test
-    void testCourseJdbcService_updateShouldPass() {
-        when(courseJdbcDao.update(testCourseEntity, PARAMETERS)).thenReturn(POSITIVE_OPERATION_RETURN);
+    void testCourseService_updateShouldCallDaoOneTime() {
+        when(courseJdbcDao.update(testCourseEntity)).thenReturn(POSITIVE_OPERATION_RETURN);
+        courseService.update(testCourseEntity);
 
-        assertAll(() -> courseJdbcService.update(testCourseEntity, PARAMETERS));
+        verify(courseJdbcDao).update(testCourseEntity);
     }
 
     @Test
-    void testCourseJdbcService_updateShouldCallDaoOneTime() {
-        when(courseJdbcDao.update(testCourseEntity, PARAMETERS)).thenReturn(POSITIVE_OPERATION_RETURN);
-        courseJdbcService.update(testCourseEntity, PARAMETERS);
-
-        verify(courseJdbcDao).update(testCourseEntity, PARAMETERS);
-    }
-
-    @Test
-    void testCourseJdbcService_updateShouldThrowExeption_whenNotFoundRecord() {
-        when(courseJdbcDao.update(testCourseEntity, PARAMETERS)).thenReturn(NEGATIVE_OPERATION_RETURN);
+    void testCourseService_updateShouldThrowExeption_whenNotFoundRecord() {
+        when(courseJdbcDao.update(testCourseEntity)).thenReturn(NEGATIVE_OPERATION_RETURN);
         Exception exception = assertThrows(UnsuccessfulOperationException.class,
-                () -> courseJdbcService.update(testCourseEntity, PARAMETERS));
+                () -> courseService.update(testCourseEntity));
 
         String expected = NOT_UPDATED;
         String actual = exception.getMessage();
@@ -180,18 +164,18 @@ class CourseJdbcServiceTest extends BasicServiceTest {
     }
 
     @Test
-    void testCourseJdbcService_deleteShouldPass() {
-        when(courseJdbcDao.getByID(1)).thenReturn(NOT_EMPTY_OPTIONAL);
+    void testCourseService_deleteShouldPass() {
+        when(courseJdbcDao.getByID(1)).thenReturn(testCourseEntity);
         when(courseJdbcDao.deleteById(1)).thenReturn(POSITIVE_OPERATION_RETURN);
 
-        assertAll(() -> courseJdbcService.deleteById(1));
+        assertAll(() -> courseService.deleteById(1));
     }
 
     @Test
-    void testCourseJdbcService_deleteShouldCallDaoRightTimesAndOrder() {
-        when(courseJdbcDao.getByID(1)).thenReturn(NOT_EMPTY_OPTIONAL);
+    void testCourseService_deleteShouldCallDaoRightTimesAndOrder() {
+        when(courseJdbcDao.getByID(1)).thenReturn(testCourseEntity);
         when(courseJdbcDao.deleteById(1)).thenReturn(POSITIVE_OPERATION_RETURN);
-        courseJdbcService.deleteById(1);
+        courseService.deleteById(1);
 
         verify(courseJdbcDao, times(1)).getByID(1);
         verify(courseJdbcDao, times(1)).deleteById(1);
@@ -202,24 +186,12 @@ class CourseJdbcServiceTest extends BasicServiceTest {
     }
 
     @Test
-    void testCourseJdbcService_deleteShouldThrowExeption_whenUnsuccessful() {
-        when(courseJdbcDao.getByID(1)).thenReturn(NOT_EMPTY_OPTIONAL);
+    void testCourseService_deleteShouldThrowExeption_whenUnsuccessful() {
+        when(courseJdbcDao.getByID(1)).thenReturn(testCourseEntity);
         when(courseJdbcDao.deleteById(1)).thenReturn(NEGATIVE_OPERATION_RETURN);
 
-        Exception exception = assertThrows(UnsuccessfulOperationException.class, () -> courseJdbcService.deleteById(1));
+        Exception exception = assertThrows(UnsuccessfulOperationException.class, () -> courseService.deleteById(1));
         String expected = NOT_DELETED;
-        String actual = exception.getMessage();
-
-        assertEquals(expected, actual);
-    }
-
-    @Test
-    void testCourseJdbcService_deleteShouldThrowExeption_whenNotFoundRecord() {
-        when(courseJdbcDao.getByID(1)).thenReturn(EMPTY_OPTIONAL);
-        when(courseJdbcDao.deleteById(1)).thenReturn(POSITIVE_OPERATION_RETURN);
-
-        Exception exception = assertThrows(NotFoundException.class, () -> courseJdbcService.deleteById(1));
-        String expected = NOT_EXIST;
         String actual = exception.getMessage();
 
         assertEquals(expected, actual);

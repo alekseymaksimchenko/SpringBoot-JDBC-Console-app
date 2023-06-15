@@ -2,9 +2,9 @@ package com.foxminded.schoolapp.service;
 
 import java.util.List;
 
-public interface StudentCourseService<T> extends GenericService<T>{
+public interface StudentServices<T> extends GenericService<T> {
 
-    void addStudentToCourse(T studentCourse);
+    void addStudentToCourse(T studentCourse, int courseId);
 
     List<T> findAllStudentsRelatedToCourse(int courseId);
 

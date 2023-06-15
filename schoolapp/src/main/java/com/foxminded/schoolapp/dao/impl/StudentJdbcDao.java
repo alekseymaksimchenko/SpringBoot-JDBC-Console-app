@@ -1,7 +1,6 @@
 package com.foxminded.schoolapp.dao.impl;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -9,6 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import com.foxminded.schoolapp.dao.StudentDao;
 import com.foxminded.schoolapp.dao.entity.StudentEntity;
 import com.foxminded.schoolapp.dao.mapper.StudentRowMapper;
+import com.foxminded.schoolapp.exception.DaoException;
 
 public class StudentJdbcDao implements StudentDao<StudentEntity> {
 
@@ -18,6 +18,10 @@ public class StudentJdbcDao implements StudentDao<StudentEntity> {
     private static final String SQL_GET_BY_ID = "SELECT id, firstname, lastname, group_id FROM school.students WHERE id=?;";
     private static final String SQL_UPDATE = "UPDATE school.students SET firstname=?, lastname=?, group_id=? WHERE id=?;";
     private static final String SQL_DELETE = "DELETE FROM school.students WHERE id=?;";
+    private static final String SQL_ADD_STUDENT_TO_COURSE = "INSERT INTO school.students_courses (student_id, course_id) VALUES(?, ?)";
+    private static final String SQL_FIND_ALL_STUDENTS_RELATED_TO_COURSE = "SELECT id, firstname, lastname, group_id FROM school.students_courses INNER JOIN school.students ON school.students_courses.student_id = school.students.id WHERE course_id=?";
+    private static final String SQL_REMOVE_STUDENT_BY_ID_FROM_COURSE = "DELETE FROM school.students_courses WHERE student_id=? AND course_id=?;";
+    private static final String GET_BY_ID_EXCEPTION = "Record under provided id - not exist";
 
     @Autowired
     public StudentJdbcDao(JdbcTemplate jdbcTemplate) {
@@ -35,25 +39,38 @@ public class StudentJdbcDao implements StudentDao<StudentEntity> {
     }
 
     @Override
-    public Optional<StudentEntity> getByID(int id) {
-        return jdbcTemplate.query(SQL_GET_BY_ID, new StudentRowMapper(), id).stream().findFirst();
+    public StudentEntity getByID(int id) throws DaoException {
+        try {
+            return jdbcTemplate.queryForObject(SQL_GET_BY_ID, new StudentRowMapper(), id);
+        } catch (org.springframework.dao.EmptyResultDataAccessException e) {
+            throw new DaoException(GET_BY_ID_EXCEPTION);
+        }
     }
 
     @Override
-    public int update(StudentEntity student, String[] parameters) {
-        String newFirstname = 
-                (parameters.length >= 1 && parameters[0] != null) ? parameters[0] : student.getFirstname();
-        String newLastname = 
-                (parameters.length >= 2 && parameters[1] != null) ? parameters[1] : student.getLastname();
-        Integer newGroupId = 
-                (parameters.length >= 3 && parameters[2] != null) ? Integer.valueOf(parameters[2]) : student.getGroupId();
-
-        return jdbcTemplate.update(SQL_UPDATE, newFirstname, newLastname, newGroupId, student.getId());
+    public int update(StudentEntity student) {
+        return jdbcTemplate.update(SQL_UPDATE, student.getFirstname(), student.getLastname(), student.getGroupId(),
+                student.getId());
     }
 
     @Override
     public int deleteById(int id) {
         return jdbcTemplate.update(SQL_DELETE, id);
+    }
+
+    @Override
+    public int addStudentToCourse(StudentEntity student, int courseId) {
+        return jdbcTemplate.update(SQL_ADD_STUDENT_TO_COURSE, student.getId(), courseId);
+    }
+
+    @Override
+    public List<StudentEntity> findAllStudentsRelatedToCourse(int courseId) {
+        return jdbcTemplate.query(SQL_FIND_ALL_STUDENTS_RELATED_TO_COURSE, new StudentRowMapper(), courseId);
+    }
+
+    @Override
+    public int removeStudentByIDFromCourse(int studentId, int courseId) {
+        return jdbcTemplate.update(SQL_REMOVE_STUDENT_BY_ID_FROM_COURSE, studentId, courseId);
     }
 
 }

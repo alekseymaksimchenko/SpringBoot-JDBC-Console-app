@@ -1,6 +1,7 @@
 package com.foxminded.schoolapp.dao.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.foxminded.schoolapp.dao.entity.GroupEntity;
+import com.foxminded.schoolapp.exception.DaoException;
 
 @Testcontainers
 @JdbcTest
@@ -29,6 +31,7 @@ class GroupJdbcDaoTest {
     private JdbcTemplate jdbcTemplate;
     private GroupJdbcDao groupJdbcDao;
     private GroupEntity testGroupEntity;
+    private static final String GET_BY_ID_EXCEPTION = "Record under provided id - not exist";
 
     @BeforeEach
     void setUp() {
@@ -50,8 +53,9 @@ class GroupJdbcDaoTest {
         groupJdbcDao.save(testGroupEntity);
 
         String expectedName = "testName";
+        GroupEntity actual = groupJdbcDao.getByID(1);
 
-        groupJdbcDao.getByID(1).ifPresent(group -> assertEquals(expectedName, group.getName()));
+        assertEquals(expectedName, actual.getName());
     }
 
     @Test
@@ -69,13 +73,14 @@ class GroupJdbcDaoTest {
     @Test
     void testGroupJdbcDao_ShouldUpdateEntry() {
         groupJdbcDao.save(testGroupEntity);
-        GroupEntity savedEntiry = new GroupEntity(1, "Updated Bio");
-        String[] update = { "Updated Bio" };
+        GroupEntity updatedEntiry = new GroupEntity(1, "Updated Bio");
 
-        groupJdbcDao.update(savedEntiry, update);
+        groupJdbcDao.update(updatedEntiry);
 
         String expectedName = "Updated Bio";
-        groupJdbcDao.getByID(1).ifPresent(group -> assertEquals(expectedName, group.getName()));
+        GroupEntity actual = groupJdbcDao.getByID(1);
+
+        assertEquals(expectedName, actual.getName());
     }
 
     @Test
@@ -99,6 +104,15 @@ class GroupJdbcDaoTest {
 
         groupJdbcDao.getAllGroupsAccordingStudentCount(1)
                 .forEach(entry -> assertEquals(expectedGroupName, entry.getName()));
+    }
+
+    @Test
+    void testGroupJdbcDao_ShouldReturnException_inCaseOfNotFoundId() {
+        Exception exception = assertThrows(DaoException.class, () -> groupJdbcDao.getByID(0));
+
+        String actual = exception.getMessage();
+        String expected = GET_BY_ID_EXCEPTION;
+        assertEquals(expected, actual);
     }
 
 }

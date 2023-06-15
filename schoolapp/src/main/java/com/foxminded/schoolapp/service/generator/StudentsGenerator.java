@@ -5,11 +5,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -20,7 +25,7 @@ import com.foxminded.schoolapp.dao.entity.StudentEntity;
 import com.foxminded.schoolapp.exception.DomainException;
 
 @Service
-public class StudentsGenerator implements Generator<StudentEntity> {
+public class StudentsGenerator implements StudentGenerator<StudentEntity> {
 
     private static final String STUDENT_NAMES_KEY = "studentNames";
     private static final String STUDENT_LASTNAMES_KEY = "studentLastnames";
@@ -28,11 +33,14 @@ public class StudentsGenerator implements Generator<StudentEntity> {
     private static final String GROUP_QUANTITY_KEY = "groupsQuantity";
     private static final String GET_MESSAGE = "Property file missing";
     private static final String SPLIT = ", ";
+    private static final String COURSE_QUANTITY_KEY = "coursesQuantity";
+    private static final int LEVELING = 1;
     private static final Logger LOGGER = LoggerFactory.getLogger(StudentsGenerator.class);
     private final List<String> studentNames;
     private final List<String> studentLastnames;
     private final int studentQuantity;
     private final int groupQuantity;
+    private final int courseQuantity;
     private Random random = new Random();
 
     public StudentsGenerator(String file) throws DomainException {
@@ -44,6 +52,7 @@ public class StudentsGenerator implements Generator<StudentEntity> {
             this.studentLastnames = Arrays.asList(properties.getProperty(STUDENT_LASTNAMES_KEY).split(SPLIT));
             this.studentQuantity = Integer.parseInt(properties.getProperty(STUDENTS_QUANTITY_KEY));
             this.groupQuantity = Integer.parseInt(properties.getProperty(GROUP_QUANTITY_KEY));
+            this.courseQuantity = Integer.parseInt(properties.getProperty(COURSE_QUANTITY_KEY));
         } catch (IOException e) {
             throw new DomainException(GET_MESSAGE, e);
         }
@@ -69,6 +78,32 @@ public class StudentsGenerator implements Generator<StudentEntity> {
         studentList.stream().filter(s -> s.getGroupId() == 0).forEach(s -> s.setGroupId(noGroupOption));
         LOGGER.trace("Returning of StudentEntities List that contains ({}) elements", studentList.size());
         return studentList;
+    }
+
+    @Override
+    public Map<StudentEntity, Set<Integer>> studentToCourseGenerator() {
+        LOGGER.debug("StudentToCourseGenerator - starts");
+        Map<StudentEntity, Set<Integer>> studentCourseMap = new HashMap<>();
+        AtomicInteger value = new AtomicInteger(0);
+        boolean assigned = false;
+        while (!assigned) {
+            int count = value.incrementAndGet();
+            if (count <= studentQuantity) {
+                Set<Integer> tempSet = new HashSet<>();
+                StudentEntity tempStudent = new StudentEntity();
+                tempStudent.setId(count);
+
+                IntStream.iterate(0, i -> i + 1).limit(random.nextInt(3) + LEVELING).forEach(s -> {
+                    Integer tempCourseId = random.nextInt(courseQuantity) + LEVELING;
+                    tempSet.add(tempCourseId);
+                });
+                studentCourseMap.put(tempStudent, tempSet);
+            } else {
+                assigned = true;
+            }
+        }
+        LOGGER.trace("Returning of StudentCourse Map that contains ({}) elements", studentCourseMap.size());
+        return studentCourseMap;
     }
 
     private List<StudentEntity> randomizeStudents() {
