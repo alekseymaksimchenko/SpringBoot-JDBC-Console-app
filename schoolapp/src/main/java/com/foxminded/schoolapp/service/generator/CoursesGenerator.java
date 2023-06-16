@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.foxminded.schoolapp.dao.entity.CourseEntity;
-import com.foxminded.schoolapp.exception.DomainException;
+import com.foxminded.schoolapp.exception.ServiceException;
 
 @Service
 public class CoursesGenerator implements Generator<CourseEntity> {
@@ -26,7 +26,7 @@ public class CoursesGenerator implements Generator<CourseEntity> {
     private static final Logger LOGGER = LoggerFactory.getLogger(CoursesGenerator.class);
     private final List<String> courseNameList;
 
-    public CoursesGenerator(String file) throws DomainException {
+    public CoursesGenerator(String file) throws ServiceException {
         LOGGER.trace("Load course quantity from config file = {}", file);
         Properties properties = new Properties();
         try (InputStream fileInputStream = new FileInputStream(file)) {
@@ -34,7 +34,7 @@ public class CoursesGenerator implements Generator<CourseEntity> {
             this.courseNameList = Arrays.asList(properties.getProperty(PROP_KEY).split(SPLIT));
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
-            throw new DomainException(GET_MESSAGE);
+            throw new ServiceException(GET_MESSAGE);
         }
     }
 

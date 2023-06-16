@@ -10,8 +10,7 @@ import org.springframework.stereotype.Service;
 import com.foxminded.schoolapp.dao.GroupDao;
 import com.foxminded.schoolapp.dao.entity.GroupEntity;
 import com.foxminded.schoolapp.exception.DaoException;
-import com.foxminded.schoolapp.exception.NotFoundException;
-import com.foxminded.schoolapp.exception.UnsuccessfulOperationException;
+import com.foxminded.schoolapp.exception.ServiceException;
 import com.foxminded.schoolapp.service.GroupServices;
 import com.foxminded.schoolapp.service.PopulateGeneratedData;
 import com.foxminded.schoolapp.service.generator.Generator;
@@ -44,7 +43,7 @@ public class GroupService implements GroupServices<GroupEntity>, PopulateGenerat
         LOGGER.debug("GroupService save ({}) - starts", group);
         int result = groupDao.save(group);
         if (result != 1) {
-            throw new UnsuccessfulOperationException(NOT_SAVED);
+            throw new ServiceException(NOT_SAVED);
         }
     }
 
@@ -55,7 +54,7 @@ public class GroupService implements GroupServices<GroupEntity>, PopulateGenerat
         if (!result.isEmpty()) {
             return result;
         } else {
-            throw new NotFoundException(IS_EMPTY);
+            throw new ServiceException(IS_EMPTY);
         }
     }
 
@@ -65,7 +64,7 @@ public class GroupService implements GroupServices<GroupEntity>, PopulateGenerat
         try {
             return groupDao.getByID(id);
         } catch (DaoException e) {
-            throw new NotFoundException(e.getMessage());
+            throw new ServiceException(e.getMessage());
         }
     }
 
@@ -74,7 +73,7 @@ public class GroupService implements GroupServices<GroupEntity>, PopulateGenerat
         LOGGER.debug("GroupService update ({}) - starts", group);
         int result = groupDao.update(group);
         if (result != 1) {
-            throw new UnsuccessfulOperationException(NOT_UPDATED);
+            throw new ServiceException(NOT_UPDATED);
         }
     }
 
@@ -85,10 +84,10 @@ public class GroupService implements GroupServices<GroupEntity>, PopulateGenerat
             groupDao.getByID(id);
             int result = groupDao.deleteById(id);
             if (result != 1) {
-                throw new UnsuccessfulOperationException(NOT_DELETED);
+                throw new ServiceException(NOT_DELETED);
             }
         } catch (DaoException e) {
-            throw new NotFoundException(e.getMessage());
+            throw new ServiceException(e.getMessage());
         }
     }
 
@@ -99,7 +98,7 @@ public class GroupService implements GroupServices<GroupEntity>, PopulateGenerat
         if (!result.isEmpty()) {
             return result;
         } else {
-            throw new NotFoundException(IS_EMPTY);
+            throw new ServiceException(IS_EMPTY);
         }
     }
 }

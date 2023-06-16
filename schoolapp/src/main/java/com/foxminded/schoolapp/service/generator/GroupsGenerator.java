@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.foxminded.schoolapp.dao.entity.GroupEntity;
-import com.foxminded.schoolapp.exception.DomainException;
+import com.foxminded.schoolapp.exception.ServiceException;
 
 @Service
 public class GroupsGenerator implements Generator<GroupEntity> {
@@ -28,7 +28,7 @@ public class GroupsGenerator implements Generator<GroupEntity> {
     private final int groupQuantity;
     private Random random = new Random();
 
-    public GroupsGenerator(String file) throws DomainException {
+    public GroupsGenerator(String file) throws ServiceException {
         LOGGER.trace("Load group quantity from config file = {}", file);
         Properties properties = new Properties();
         try (InputStream fileInputStream = new FileInputStream(file)) {
@@ -36,7 +36,7 @@ public class GroupsGenerator implements Generator<GroupEntity> {
             this.groupQuantity = Integer.parseInt(properties.getProperty(PROP_KEY));
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
-            throw new DomainException(GET_MESSAGE, e);
+            throw new ServiceException(GET_MESSAGE, e);
         }
     }
 

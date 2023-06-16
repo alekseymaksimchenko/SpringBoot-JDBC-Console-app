@@ -22,8 +22,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.foxminded.schoolapp.dao.entity.StudentEntity;
 import com.foxminded.schoolapp.dao.impl.StudentJdbcDao;
-import com.foxminded.schoolapp.exception.NotFoundException;
-import com.foxminded.schoolapp.exception.UnsuccessfulOperationException;
+import com.foxminded.schoolapp.exception.ServiceException;
 import com.foxminded.schoolapp.service.generator.StudentsGenerator;
 import com.foxminded.schoolapp.service.impl.StudentService;
 
@@ -86,7 +85,7 @@ class StudentServiceTest extends BasicServiceTest {
     @Test
     void testStudentService_saveShouldThrowExeption_whenUnsuccessful() {
         when(studentJdbcDao.save(testStudentEntity)).thenReturn(NEGATIVE_OPERATION_RETURN);
-        Exception exception = assertThrows(UnsuccessfulOperationException.class,
+        Exception exception = assertThrows(ServiceException.class,
                 () -> studentService.save(testStudentEntity));
 
         String expected = NOT_SAVED;
@@ -113,7 +112,7 @@ class StudentServiceTest extends BasicServiceTest {
     @Test
     void testStudentService_getAllShouldThrowExeption_whenReturnEmptyList() {
         when(studentJdbcDao.getAll()).thenReturn(EMPTY_LIST);
-        Exception exception = assertThrows(NotFoundException.class, () -> studentService.getAll());
+        Exception exception = assertThrows(ServiceException.class, () -> studentService.getAll());
 
         String expected = IS_EMPTY;
         String actual = exception.getMessage();
@@ -154,7 +153,7 @@ class StudentServiceTest extends BasicServiceTest {
     @Test
     void testStudentService_updateShouldThrowExeption_whenNotFoundRecord() {
         when(studentJdbcDao.update(testStudentEntity)).thenReturn(NEGATIVE_OPERATION_RETURN);
-        Exception exception = assertThrows(UnsuccessfulOperationException.class,
+        Exception exception = assertThrows(ServiceException.class,
                 () -> studentService.update(testStudentEntity));
 
         String expected = NOT_UPDATED;
@@ -190,7 +189,7 @@ class StudentServiceTest extends BasicServiceTest {
         when(studentJdbcDao.getByID(1)).thenReturn(testStudentEntity);
         when(studentJdbcDao.deleteById(1)).thenReturn(NEGATIVE_OPERATION_RETURN);
 
-        Exception exception = assertThrows(UnsuccessfulOperationException.class, () -> studentService.deleteById(1));
+        Exception exception = assertThrows(ServiceException.class, () -> studentService.deleteById(1));
         String expected = NOT_DELETED;
         String actual = exception.getMessage();
 
@@ -215,7 +214,7 @@ class StudentServiceTest extends BasicServiceTest {
     @Test
     void testStudentService_addStudentToCourse_shouldThrowExeption_whenUnsuccessful() {
         when(studentJdbcDao.addStudentToCourse(testStudentEntity, 1)).thenReturn(NEGATIVE_OPERATION_RETURN);
-        Exception exception = assertThrows(UnsuccessfulOperationException.class,
+        Exception exception = assertThrows(ServiceException.class,
                 () -> studentService.addStudentToCourse(testStudentEntity, 1));
 
         String expected = NOT_SAVED;
@@ -242,7 +241,7 @@ class StudentServiceTest extends BasicServiceTest {
     @Test
     void testStudentService_findAllStudentsRelatedToCourse_shouldThrowExeption_whenNotFoundRecord() {
         when(studentJdbcDao.findAllStudentsRelatedToCourse(1)).thenReturn(EMPTY_LIST);
-        Exception exception = assertThrows(NotFoundException.class,
+        Exception exception = assertThrows(ServiceException.class,
                 () -> studentService.findAllStudentsRelatedToCourse(1));
 
         String expected = NOT_EXIST;
@@ -269,7 +268,7 @@ class StudentServiceTest extends BasicServiceTest {
     @Test
     void testStudentService_removeStudentByIDFromCourse_shouldThrowExeption_whenUnsuccessful() {
         when(studentJdbcDao.removeStudentByIDFromCourse(1, 1)).thenReturn(NEGATIVE_OPERATION_RETURN);
-        Exception exception = assertThrows(UnsuccessfulOperationException.class,
+        Exception exception = assertThrows(ServiceException.class,
                 () -> studentService.removeStudentByIDFromCourse(1, 1));
 
         String expected = NOT_DELETED;

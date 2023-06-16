@@ -13,7 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.foxminded.schoolapp.dao.entity.GroupEntity;
-import com.foxminded.schoolapp.exception.DomainException;
+import com.foxminded.schoolapp.exception.ServiceException;
 
 class GroupsGeneratorTest {
 
@@ -33,7 +33,7 @@ class GroupsGeneratorTest {
 
     @Test
     void testGroupsGenerator_throwsDomainException() {
-        DomainException ex = assertThrows(DomainException.class, () -> new GroupsGenerator("test"));
+        ServiceException ex = assertThrows(ServiceException.class, () -> new GroupsGenerator("test"));
         String expectedMessage = "Property file missing";
         assertEquals(expectedMessage, ex.getMessage());
     }

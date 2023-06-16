@@ -22,8 +22,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.foxminded.schoolapp.dao.entity.GroupEntity;
 import com.foxminded.schoolapp.dao.impl.GroupJdbcDao;
-import com.foxminded.schoolapp.exception.NotFoundException;
-import com.foxminded.schoolapp.exception.UnsuccessfulOperationException;
+import com.foxminded.schoolapp.exception.ServiceException;
 import com.foxminded.schoolapp.service.generator.GroupsGenerator;
 import com.foxminded.schoolapp.service.impl.GroupService;
 
@@ -86,7 +85,7 @@ class GroupServiceTest extends BasicServiceTest {
     @Test
     void testGroupService_getAllGroupsAccordingStudentCount_ShouldThrowExeption_whenReturnEmptyList() {
         when(groupJdbcDao.getAllGroupsAccordingStudentCount(1)).thenReturn(EMPTY_LIST);
-        Exception exception = assertThrows(NotFoundException.class,
+        Exception exception = assertThrows(ServiceException.class,
                 () -> groupService.getAllGroupsAccordingStudentCount(1));
 
         String expected = IS_EMPTY;
@@ -113,7 +112,7 @@ class GroupServiceTest extends BasicServiceTest {
     @Test
     void testGroupService_saveShouldThrowExeption_whenUnsuccessful() {
         when(groupJdbcDao.save(testGroupEntity)).thenReturn(NEGATIVE_OPERATION_RETURN);
-        Exception exception = assertThrows(UnsuccessfulOperationException.class,
+        Exception exception = assertThrows(ServiceException.class,
                 () -> groupService.save(testGroupEntity));
 
         String expected = NOT_SAVED;
@@ -140,7 +139,7 @@ class GroupServiceTest extends BasicServiceTest {
     @Test
     void testGroupService_getAllShouldThrowExeption_whenReturnEmptyList() {
         when(groupJdbcDao.getAll()).thenReturn(EMPTY_LIST);
-        Exception exception = assertThrows(NotFoundException.class, () -> groupService.getAll());
+        Exception exception = assertThrows(ServiceException.class, () -> groupService.getAll());
 
         String expected = IS_EMPTY;
         String actual = exception.getMessage();
@@ -181,7 +180,7 @@ class GroupServiceTest extends BasicServiceTest {
     @Test
     void testGroupService_updateShouldThrowExeption_whenNotFoundRecord() {
         when(groupJdbcDao.update(testGroupEntity)).thenReturn(NEGATIVE_OPERATION_RETURN);
-        Exception exception = assertThrows(UnsuccessfulOperationException.class,
+        Exception exception = assertThrows(ServiceException.class,
                 () -> groupService.update(testGroupEntity));
 
         String expected = NOT_UPDATED;
@@ -218,7 +217,7 @@ class GroupServiceTest extends BasicServiceTest {
         when(groupJdbcDao.getByID(1)).thenReturn(testGroupEntity);
         when(groupJdbcDao.deleteById(1)).thenReturn(NEGATIVE_OPERATION_RETURN);
 
-        Exception exception = assertThrows(UnsuccessfulOperationException.class, () -> groupService.deleteById(1));
+        Exception exception = assertThrows(ServiceException.class, () -> groupService.deleteById(1));
         String expected = NOT_DELETED;
         String actual = exception.getMessage();
 

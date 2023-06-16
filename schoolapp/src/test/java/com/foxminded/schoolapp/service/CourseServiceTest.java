@@ -22,8 +22,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.foxminded.schoolapp.dao.entity.CourseEntity;
 import com.foxminded.schoolapp.dao.impl.CourseJdbcDao;
-import com.foxminded.schoolapp.exception.NotFoundException;
-import com.foxminded.schoolapp.exception.UnsuccessfulOperationException;
+import com.foxminded.schoolapp.exception.ServiceException;
 import com.foxminded.schoolapp.service.generator.CoursesGenerator;
 import com.foxminded.schoolapp.service.impl.CourseService;
 
@@ -85,7 +84,7 @@ class CourseServiceTest extends BasicServiceTest {
     @Test
     void testCourseService_saveShouldThrowExeption_whenUnsuccessful() {
         when(courseJdbcDao.save(testCourseEntity)).thenReturn(NEGATIVE_OPERATION_RETURN);
-        Exception exception = assertThrows(UnsuccessfulOperationException.class,
+        Exception exception = assertThrows(ServiceException.class,
                 () -> courseService.save(testCourseEntity));
 
         String expected = NOT_SAVED;
@@ -112,7 +111,7 @@ class CourseServiceTest extends BasicServiceTest {
     @Test
     void testCourseService_getAllShouldThrowExeption_whenReturnEmptyList() {
         when(courseJdbcDao.getAll()).thenReturn(EMPTY_LIST);
-        Exception exception = assertThrows(NotFoundException.class, () -> courseService.getAll());
+        Exception exception = assertThrows(ServiceException.class, () -> courseService.getAll());
 
         String expected = IS_EMPTY;
         String actual = exception.getMessage();
@@ -153,7 +152,7 @@ class CourseServiceTest extends BasicServiceTest {
     @Test
     void testCourseService_updateShouldThrowExeption_whenNotFoundRecord() {
         when(courseJdbcDao.update(testCourseEntity)).thenReturn(NEGATIVE_OPERATION_RETURN);
-        Exception exception = assertThrows(UnsuccessfulOperationException.class,
+        Exception exception = assertThrows(ServiceException.class,
                 () -> courseService.update(testCourseEntity));
 
         String expected = NOT_UPDATED;
@@ -190,7 +189,7 @@ class CourseServiceTest extends BasicServiceTest {
         when(courseJdbcDao.getByID(1)).thenReturn(testCourseEntity);
         when(courseJdbcDao.deleteById(1)).thenReturn(NEGATIVE_OPERATION_RETURN);
 
-        Exception exception = assertThrows(UnsuccessfulOperationException.class, () -> courseService.deleteById(1));
+        Exception exception = assertThrows(ServiceException.class, () -> courseService.deleteById(1));
         String expected = NOT_DELETED;
         String actual = exception.getMessage();
 

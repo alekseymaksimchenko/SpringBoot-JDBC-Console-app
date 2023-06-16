@@ -3,6 +3,7 @@ package com.foxminded.schoolapp.dao.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -41,7 +42,7 @@ public class CourseJdbcDao implements CourseDao<CourseEntity> {
     public CourseEntity getByID(int id) throws DaoException {
         try {
             return jdbcTemplate.queryForObject(SQL_GET_BY_ID, new CourseRowMapper(), id);
-        } catch (org.springframework.dao.EmptyResultDataAccessException e) {
+        } catch (EmptyResultDataAccessException e) {
             throw new DaoException(GET_BY_ID_EXCEPTION);
         }
     }

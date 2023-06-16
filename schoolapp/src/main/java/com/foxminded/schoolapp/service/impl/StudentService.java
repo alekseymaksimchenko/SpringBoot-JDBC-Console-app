@@ -10,8 +10,7 @@ import org.springframework.stereotype.Service;
 import com.foxminded.schoolapp.dao.StudentDao;
 import com.foxminded.schoolapp.dao.entity.StudentEntity;
 import com.foxminded.schoolapp.exception.DaoException;
-import com.foxminded.schoolapp.exception.NotFoundException;
-import com.foxminded.schoolapp.exception.UnsuccessfulOperationException;
+import com.foxminded.schoolapp.exception.ServiceException;
 import com.foxminded.schoolapp.service.PopulateGeneratedData;
 import com.foxminded.schoolapp.service.PopulateStudentsToCorses;
 import com.foxminded.schoolapp.service.StudentServices;
@@ -53,7 +52,7 @@ public class StudentService implements StudentServices<StudentEntity>, PopulateG
         LOGGER.debug("StudentService save ({}) - starts", student);
         int result = studentDao.save(student);
         if (result != 1) {
-            throw new UnsuccessfulOperationException(NOT_SAVED);
+            throw new ServiceException(NOT_SAVED);
         }
     }
 
@@ -64,7 +63,7 @@ public class StudentService implements StudentServices<StudentEntity>, PopulateG
         if (!result.isEmpty()) {
             return result;
         } else {
-            throw new NotFoundException(IS_EMPTY);
+            throw new ServiceException(IS_EMPTY);
         }
     }
 
@@ -74,7 +73,7 @@ public class StudentService implements StudentServices<StudentEntity>, PopulateG
         try {
             return studentDao.getByID(id);
         } catch (DaoException e) {
-            throw new NotFoundException(e.getMessage());
+            throw new ServiceException(e.getMessage());
         }
     }
 
@@ -83,7 +82,7 @@ public class StudentService implements StudentServices<StudentEntity>, PopulateG
         LOGGER.debug("StudentService update ({}) - starts", student);
         int result = studentDao.update(student);
         if (result != 1) {
-            throw new UnsuccessfulOperationException(NOT_UPDATED);
+            throw new ServiceException(NOT_UPDATED);
         }
     }
 
@@ -94,10 +93,10 @@ public class StudentService implements StudentServices<StudentEntity>, PopulateG
             studentDao.getByID(id);
             int result = studentDao.deleteById(id);
             if (result != 1) {
-                throw new UnsuccessfulOperationException(NOT_DELETED);
+                throw new ServiceException(NOT_DELETED);
             }
         } catch (DaoException e) {
-            throw new NotFoundException(e.getMessage());
+            throw new ServiceException(e.getMessage());
         }
     }
 
@@ -106,7 +105,7 @@ public class StudentService implements StudentServices<StudentEntity>, PopulateG
         LOGGER.debug("StudentService addStudentToCourse ({}) - starts", student);
         int result = studentDao.addStudentToCourse(student, courseId);
         if (result != 1) {
-            throw new UnsuccessfulOperationException(NOT_SAVED);
+            throw new ServiceException(NOT_SAVED);
         }
 
     }
@@ -118,7 +117,7 @@ public class StudentService implements StudentServices<StudentEntity>, PopulateG
         if (!result.isEmpty()) {
             return result;
         } else {
-            throw new NotFoundException(NOT_EXIST);
+            throw new ServiceException(NOT_EXIST);
         }
     }
 
@@ -128,7 +127,7 @@ public class StudentService implements StudentServices<StudentEntity>, PopulateG
                 studentId, courseId);
         int result = studentDao.removeStudentByIDFromCourse(studentId, courseId);
         if (result != 1) {
-            throw new UnsuccessfulOperationException(NOT_DELETED);
+            throw new ServiceException(NOT_DELETED);
         }
     }
 

@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.foxminded.schoolapp.dao.entity.StudentEntity;
-import com.foxminded.schoolapp.exception.DomainException;
+import com.foxminded.schoolapp.exception.ServiceException;
 
 @Service
 public class StudentsGenerator implements StudentGenerator<StudentEntity> {
@@ -43,7 +43,7 @@ public class StudentsGenerator implements StudentGenerator<StudentEntity> {
     private final int courseQuantity;
     private Random random = new Random();
 
-    public StudentsGenerator(String file) throws DomainException {
+    public StudentsGenerator(String file) throws ServiceException {
         LOGGER.trace("Load student quantity from config file = {}", file);
         Properties properties = new Properties();
         try (InputStream fileInputStream = new FileInputStream(file)) {
@@ -54,7 +54,7 @@ public class StudentsGenerator implements StudentGenerator<StudentEntity> {
             this.groupQuantity = Integer.parseInt(properties.getProperty(GROUP_QUANTITY_KEY));
             this.courseQuantity = Integer.parseInt(properties.getProperty(COURSE_QUANTITY_KEY));
         } catch (IOException e) {
-            throw new DomainException(GET_MESSAGE, e);
+            throw new ServiceException(GET_MESSAGE, e);
         }
     }
 
