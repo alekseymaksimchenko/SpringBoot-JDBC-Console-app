@@ -21,10 +21,6 @@ public class GroupService implements GroupServices<GroupEntity>, PopulateGenerat
     private final GroupDao<GroupEntity> groupDao;
     private final Generator<GroupEntity> groupGenerator;
     private static final Logger LOGGER = LoggerFactory.getLogger(GroupService.class);
-    private static final String NOT_SAVED = "Record was NOT saved due to unknown reason";
-    private static final String NOT_UPDATED = "Record was NOT updated due to unknown reason";
-    private static final String NOT_DELETED = "Record was NOT deleted due to unknown reason";
-    private static final String IS_EMPTY = "Table doesn't contain any Records";
 
     @Autowired
     public GroupService(GroupDao<GroupEntity> groupDao, Generator<GroupEntity> groupGenerator) {
@@ -33,33 +29,37 @@ public class GroupService implements GroupServices<GroupEntity>, PopulateGenerat
     }
 
     @Override
-    public void populate() {
+    public void populate() throws ServiceException {
         LOGGER.debug("GroupService populate - starts");
-        groupGenerator.generate().forEach(groupDao::save);
+        try {
+            groupGenerator.generate().forEach(groupDao::save);
+        } catch (DaoException e) {
+            throw new ServiceException(e.getMessage());
+        }
     }
 
     @Override
-    public void save(GroupEntity group) {
+    public void save(GroupEntity group) throws ServiceException {
         LOGGER.debug("GroupService save ({}) - starts", group);
-        int result = groupDao.save(group);
-        if (result != 1) {
-            throw new ServiceException(NOT_SAVED);
+        try {
+            groupDao.save(group);
+        } catch (DaoException e) {
+            throw new ServiceException(e.getMessage());
         }
     }
 
     @Override
-    public List<GroupEntity> getAll() {
+    public List<GroupEntity> getAll() throws ServiceException {
         LOGGER.debug("GroupService getAll - starts");
-        List<GroupEntity> result = groupDao.getAll();
-        if (!result.isEmpty()) {
-            return result;
-        } else {
-            throw new ServiceException(IS_EMPTY);
+        try {
+            return groupDao.getAll();
+        } catch (DaoException e) {
+            throw new ServiceException(e.getMessage());
         }
     }
 
     @Override
-    public GroupEntity getByID(int id) {
+    public GroupEntity getByID(int id) throws ServiceException {
         LOGGER.debug("GroupService getByID - starts with id = {}", id);
         try {
             return groupDao.getByID(id);
@@ -69,36 +69,34 @@ public class GroupService implements GroupServices<GroupEntity>, PopulateGenerat
     }
 
     @Override
-    public void update(GroupEntity group) {
+    public void update(GroupEntity group) throws ServiceException {
         LOGGER.debug("GroupService update ({}) - starts", group);
-        int result = groupDao.update(group);
-        if (result != 1) {
-            throw new ServiceException(NOT_UPDATED);
-        }
-    }
-
-    @Override
-    public void deleteById(int id) {
-        LOGGER.debug("GroupService deleteById starts with id = {}", id);
         try {
-            groupDao.getByID(id);
-            int result = groupDao.deleteById(id);
-            if (result != 1) {
-                throw new ServiceException(NOT_DELETED);
-            }
+            groupDao.update(group);
         } catch (DaoException e) {
             throw new ServiceException(e.getMessage());
         }
     }
 
     @Override
-    public List<GroupEntity> getAllGroupsAccordingStudentCount(int count) {
+    public void deleteById(int id) throws ServiceException {
+        LOGGER.debug("GroupService deleteById starts with id = {}", id);
+        try {
+            groupDao.getByID(id);
+            groupDao.deleteById(id);
+        } catch (DaoException e) {
+            throw new ServiceException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<GroupEntity> getAllGroupsAccordingStudentCount(int count) throws ServiceException {
         LOGGER.debug("GroupService getAllGroupsAccordingStudentCount - starts with students count = {}", count);
-        List<GroupEntity> result = groupDao.getAllGroupsAccordingStudentCount(count);
-        if (!result.isEmpty()) {
-            return result;
-        } else {
-            throw new ServiceException(IS_EMPTY);
+        try {
+            return groupDao.getAllGroupsAccordingStudentCount(count);
+
+        } catch (DaoException e) {
+            throw new ServiceException(e.getMessage());
         }
     }
 }

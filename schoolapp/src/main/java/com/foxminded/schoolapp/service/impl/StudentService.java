@@ -22,11 +22,6 @@ public class StudentService implements StudentServices<StudentEntity>, PopulateG
     private final StudentDao<StudentEntity> studentDao;
     private final StudentGenerator<StudentEntity> studentGenerator;
     private static final Logger LOGGER = LoggerFactory.getLogger(StudentService.class);
-    private static final String NOT_SAVED = "Record was NOT saved due to unknown reason";
-    private static final String NOT_UPDATED = "Record was NOT updated due to unknown reason";
-    private static final String NOT_DELETED = "Record was NOT deleted due to unknown reason";
-    private static final String NOT_EXIST = "Record under provided id - not exist";
-    private static final String IS_EMPTY = "Table doesn't contain any Records";
 
     @Autowired
     public StudentService(StudentDao<StudentEntity> studentDao, StudentGenerator<StudentEntity> studentGenerator) {
@@ -35,40 +30,48 @@ public class StudentService implements StudentServices<StudentEntity>, PopulateG
     }
 
     @Override
-    public void populate() {
+    public void populate() throws ServiceException {
         LOGGER.debug("StudentService populate - starts");
-        studentGenerator.generate().forEach(studentDao::save);
+        try {
+            studentGenerator.generate().forEach(studentDao::save);
+        } catch (DaoException e) {
+            throw new ServiceException(e.getMessage());
+        }
     }
 
     @Override
-    public void populateStudentsToCourses() {
+    public void populateStudentsToCourses() throws ServiceException {
         LOGGER.debug("StudentService populateStudentsToCourses - starts");
-        studentGenerator.studentToCourseGenerator().entrySet().forEach(s -> 
-            s.getValue().forEach(set -> studentDao.addStudentToCourse(s.getKey(), set)));      
+        try {
+            studentGenerator.studentToCourseGenerator().entrySet()
+                    .forEach(s -> s.getValue().forEach(set -> studentDao.addStudentToCourse(s.getKey(), set)));
+        } catch (DaoException e) {
+            throw new ServiceException(e.getMessage());
+        }
     }
 
     @Override
-    public void save(StudentEntity student) {
+    public void save(StudentEntity student) throws ServiceException {
         LOGGER.debug("StudentService save ({}) - starts", student);
-        int result = studentDao.save(student);
-        if (result != 1) {
-            throw new ServiceException(NOT_SAVED);
+        try {
+            studentDao.save(student);
+        } catch (DaoException e) {
+            throw new ServiceException(e.getMessage());
         }
     }
 
     @Override
-    public List<StudentEntity> getAll() {
+    public List<StudentEntity> getAll() throws ServiceException {
         LOGGER.debug("StudentService getAll - starts");
-        List<StudentEntity> result = studentDao.getAll();
-        if (!result.isEmpty()) {
-            return result;
-        } else {
-            throw new ServiceException(IS_EMPTY);
+        try {
+            return studentDao.getAll();
+        } catch (DaoException e) {
+            throw new ServiceException(e.getMessage());
         }
     }
 
     @Override
-    public StudentEntity getByID(int id) {
+    public StudentEntity getByID(int id) throws ServiceException {
         LOGGER.debug("StudentService getByID - starts with id = {}", id);
         try {
             return studentDao.getByID(id);
@@ -78,56 +81,55 @@ public class StudentService implements StudentServices<StudentEntity>, PopulateG
     }
 
     @Override
-    public void update(StudentEntity student) {
+    public void update(StudentEntity student) throws ServiceException {
         LOGGER.debug("StudentService update ({}) - starts", student);
-        int result = studentDao.update(student);
-        if (result != 1) {
-            throw new ServiceException(NOT_UPDATED);
-        }
-    }
-
-    @Override
-    public void deleteById(int id) {
-        LOGGER.debug("StudentService deleteById starts with id = {}", id);
         try {
-            studentDao.getByID(id);
-            int result = studentDao.deleteById(id);
-            if (result != 1) {
-                throw new ServiceException(NOT_DELETED);
-            }
+            studentDao.update(student);
         } catch (DaoException e) {
             throw new ServiceException(e.getMessage());
         }
     }
 
     @Override
-    public void addStudentToCourse(StudentEntity student, int courseId) {
+    public void deleteById(int id) throws ServiceException {
+        LOGGER.debug("StudentService deleteById starts with id = {}", id);
+        try {
+            studentDao.getByID(id);
+            studentDao.deleteById(id);
+        } catch (DaoException e) {
+            throw new ServiceException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void addStudentToCourse(StudentEntity student, int courseId) throws ServiceException {
         LOGGER.debug("StudentService addStudentToCourse ({}) - starts", student);
-        int result = studentDao.addStudentToCourse(student, courseId);
-        if (result != 1) {
-            throw new ServiceException(NOT_SAVED);
+        try {
+            studentDao.addStudentToCourse(student, courseId);
+        } catch (DaoException e) {
+            throw new ServiceException(e.getMessage());
         }
-
     }
 
     @Override
-    public List<StudentEntity> findAllStudentsRelatedToCourse(int courseId) {
+    public List<StudentEntity> findAllStudentsRelatedToCourse(int courseId) throws ServiceException {
         LOGGER.debug("StudentsService findAllStudentsRelatedToCourse - starts with id = {}", courseId);
-        List<StudentEntity> result = studentDao.findAllStudentsRelatedToCourse(courseId);
-        if (!result.isEmpty()) {
-            return result;
-        } else {
-            throw new ServiceException(NOT_EXIST);
+        try {
+            return studentDao.findAllStudentsRelatedToCourse(courseId);
+
+        } catch (DaoException e) {
+            throw new ServiceException(e.getMessage());
         }
     }
 
     @Override
-    public void removeStudentByIDFromCourse(int studentId, int courseId) {
+    public void removeStudentByIDFromCourse(int studentId, int courseId) throws ServiceException {
         LOGGER.debug("StudentsService removeStudentByIDFromCourse - starts with studentId = {}, courseId = {}",
                 studentId, courseId);
-        int result = studentDao.removeStudentByIDFromCourse(studentId, courseId);
-        if (result != 1) {
-            throw new ServiceException(NOT_DELETED);
+        try {
+            studentDao.removeStudentByIDFromCourse(studentId, courseId);
+        } catch (DaoException e) {
+            throw new ServiceException(e.getMessage());
         }
     }
 

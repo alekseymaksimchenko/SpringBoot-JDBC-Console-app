@@ -6,14 +6,14 @@ import com.foxminded.schoolapp.exception.DaoException;
 
 public interface GenericDao<T> {
 
-    int save(T course);
+    void save(T course);
 
     List<T> getAll();
 
     T getByID(int id) throws DaoException;
 
-    int update(T course);
+    void update(T course);
 
-    int deleteById(int id);
+    void deleteById(int id);
 
 }

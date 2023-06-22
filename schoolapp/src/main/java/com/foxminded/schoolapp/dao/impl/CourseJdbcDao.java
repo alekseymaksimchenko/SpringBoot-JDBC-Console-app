@@ -22,6 +22,8 @@ public class CourseJdbcDao implements CourseDao<CourseEntity> {
     private static final String SQL_UPDATE = "UPDATE school.courses SET name=?, description=? WHERE id=?;";
     private static final String SQL_DELETE = "DELETE FROM school.courses WHERE id=?;";
     private static final String GET_BY_ID_EXCEPTION = "Record under provided id - not exist";
+    private static final String IS_EMPTY = "Table doesn't contain any Records";
+    private static final String NOT_SUCCESSFUL_OPERATION = "Operation failed from Data Base side";
 
     @Autowired
     public CourseJdbcDao(JdbcTemplate jdbcTemplat) {
@@ -29,13 +31,21 @@ public class CourseJdbcDao implements CourseDao<CourseEntity> {
     }
 
     @Override
-    public int save(CourseEntity course) {
-        return jdbcTemplate.update(SQL_SAVE, course.getName(), course.getDescription());
+    public void save(CourseEntity course) throws DaoException {
+        int result = jdbcTemplate.update(SQL_SAVE, course.getName(), course.getDescription());
+        if (result != 1) {
+            throw new DaoException(NOT_SUCCESSFUL_OPERATION);
+        }
     }
 
     @Override
-    public List<CourseEntity> getAll() {
-        return jdbcTemplate.query(SQL_GET_ALL, new CourseRowMapper());
+    public List<CourseEntity> getAll() throws DaoException {
+        List<CourseEntity> result = jdbcTemplate.query(SQL_GET_ALL, new CourseRowMapper());
+        if (!result.isEmpty()) {
+            return result;
+        } else {
+            throw new DaoException(IS_EMPTY);
+        }
     }
 
     @Override
@@ -48,13 +58,18 @@ public class CourseJdbcDao implements CourseDao<CourseEntity> {
     }
 
     @Override
-    public int update(CourseEntity course) {
-        return jdbcTemplate.update(SQL_UPDATE, course.getName(), course.getDescription(), course.getId());
+    public void update(CourseEntity course) throws DaoException {
+        int result = jdbcTemplate.update(SQL_UPDATE, course.getName(), course.getDescription(), course.getId());
+        if (result != 1) {
+            throw new DaoException(NOT_SUCCESSFUL_OPERATION);
+        }
     }
 
     @Override
-    public int deleteById(int id) {
-        return jdbcTemplate.update(SQL_DELETE, id);
+    public void deleteById(int id) throws DaoException {
+        int result = jdbcTemplate.update(SQL_DELETE, id);
+        if (result != 1) {
+            throw new DaoException(NOT_SUCCESSFUL_OPERATION);
+        }
     }
-
 }

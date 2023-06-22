@@ -1,6 +1,6 @@
 spring:
   datasource:
-    jdbc-url: jdbc:postgresql://localhost:5432/postgres
+    jdbc-url: jdbc:postgresql://localhost:5432/postgresTest
     username: postgres
     password: 1234
     driver-class-name: org.postgresql.Driver
@@ -8,12 +8,7 @@ spring:
       minimum-idle: 1
       maximum-pool-size: 5
       
-  main:
-    web-application-type: none
-   
-server:
-    port: 8080
-
+ 
 
 
 

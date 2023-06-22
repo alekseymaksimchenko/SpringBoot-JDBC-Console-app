@@ -21,10 +21,6 @@ public class CourseService implements CourseServices<CourseEntity>, PopulateGene
     private final CourseDao<CourseEntity> courseDao;
     private final Generator<CourseEntity> courseGenerator;
     private static final Logger LOGGER = LoggerFactory.getLogger(CourseService.class);
-    private static final String NOT_SAVED = "Record was NOT saved due to unknown reason";
-    private static final String NOT_UPDATED = "Record was NOT updated due to unknown reason";
-    private static final String NOT_DELETED = "Record was NOT deleted due to unknown reason";
-    private static final String IS_EMPTY = "Table doesn't contain any Records";
 
     @Autowired
     public CourseService(CourseDao<CourseEntity> courseDao, Generator<CourseEntity> courseGenerator) {
@@ -33,33 +29,37 @@ public class CourseService implements CourseServices<CourseEntity>, PopulateGene
     }
 
     @Override
-    public void populate() {
+    public void populate() throws ServiceException {
         LOGGER.debug("CourseService populate - starts");
-        courseGenerator.generate().forEach(courseDao::save);
+        try {
+            courseGenerator.generate().forEach(courseDao::save);
+        } catch (DaoException e) {
+            throw new ServiceException(e.getMessage());
+        }
     }
 
     @Override
-    public void save(CourseEntity course) {
+    public void save(CourseEntity course) throws ServiceException {
         LOGGER.debug("CourseService save ({}) - starts", course);
-        int result = courseDao.save(course);
-        if (result != 1) {
-            throw new ServiceException(NOT_SAVED);
+        try {
+            courseDao.save(course);
+        } catch (DaoException e) {
+            throw new ServiceException(e.getMessage());
         }
     }
 
     @Override
-    public List<CourseEntity> getAll() {
+    public List<CourseEntity> getAll() throws ServiceException {
         LOGGER.debug("CourseService getAll - starts");
-        List<CourseEntity> result = courseDao.getAll();
-        if (!result.isEmpty()) {
-            return result;
-        } else {
-            throw new ServiceException(IS_EMPTY);
+        try {
+            return courseDao.getAll();
+        } catch (DaoException e) {
+            throw new ServiceException(e.getMessage());
         }
     }
 
     @Override
-    public CourseEntity getByID(int id) {
+    public CourseEntity getByID(int id) throws ServiceException {
         LOGGER.debug("CourseService getByID - starts with id = {}", id);
         try {
             return courseDao.getByID(id);
@@ -69,23 +69,21 @@ public class CourseService implements CourseServices<CourseEntity>, PopulateGene
     }
 
     @Override
-    public void update(CourseEntity course) {
+    public void update(CourseEntity course) throws ServiceException {
         LOGGER.debug("CourseService update ({}) - starts", course);
-        int result = courseDao.update(course);
-        if (result != 1) {
-            throw new ServiceException(NOT_UPDATED);
+        try {
+            courseDao.update(course);
+        } catch (DaoException e) {
+            throw new ServiceException(e.getMessage());
         }
     }
 
     @Override
-    public void deleteById(int id) {
+    public void deleteById(int id) throws ServiceException {
         LOGGER.debug("CourseService deleteById starts with id = {}", id);
         try {
             courseDao.getByID(id);
-            int result = courseDao.deleteById(id);
-            if (result != 1) {
-                throw new ServiceException(NOT_DELETED);
-            }
+            courseDao.deleteById(id);
         } catch (DaoException e) {
             throw new ServiceException(e.getMessage());
         }

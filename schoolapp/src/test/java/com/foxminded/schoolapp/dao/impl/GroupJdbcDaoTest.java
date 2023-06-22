@@ -2,36 +2,31 @@ package com.foxminded.schoolapp.dao.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.foxminded.schoolapp.dao.entity.GroupEntity;
 import com.foxminded.schoolapp.exception.DaoException;
 
-@Testcontainers
 @JdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Sql(scripts = { "/clear_tables.sql" }, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-class GroupJdbcDaoTest {
-
-    @Container
-    private static PostgreSQLContainer<?> postgresqlContainer = new PostgreSQLContainer<>("postgres:latest")
-            .withReuse(true);
+class GroupJdbcDaoTest extends BasicJdbcDaoTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
     private GroupJdbcDao groupJdbcDao;
     private GroupEntity testGroupEntity;
-    private static final String GET_BY_ID_EXCEPTION = "Record under provided id - not exist";
 
     @BeforeEach
     void setUp() {
@@ -40,11 +35,26 @@ class GroupJdbcDaoTest {
     }
 
     @Test
-    void testGroupJdbcDao_ShouldCreateEntry() {
+    void testGroupJdbcDao_ShouldSave() {
         groupJdbcDao.save(testGroupEntity);
 
         int expected = 1;
         int actual = groupJdbcDao.getAll().size();
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void testGroupJdbcDao_ShouldReturnDaoException_inCaseOfNotSaved() {
+        jdbcTemplate = Mockito.mock(JdbcTemplate.class);
+        when(jdbcTemplate.update(anyString(), any(), any())).thenReturn(0);
+        groupJdbcDao = new GroupJdbcDao(jdbcTemplate);
+
+        Exception exception = assertThrows(DaoException.class, () -> {
+            groupJdbcDao.save(testGroupEntity);
+        });
+
+        String actual = exception.getMessage();
+        String expected = NOT_SUCCESSFUL_OPERATION;
         assertEquals(expected, actual);
     }
 
@@ -59,6 +69,15 @@ class GroupJdbcDaoTest {
     }
 
     @Test
+    void testGroupJdbcDao_ShouldReturnDaoException_inCaseOfNotFoundId() {
+        Exception exception = assertThrows(DaoException.class, () -> groupJdbcDao.getByID(0));
+
+        String actual = exception.getMessage();
+        String expected = GET_BY_ID_EXCEPTION;
+        assertEquals(expected, actual);
+    }
+
+    @Test
     void testGroupJdbcDao_ShouldFindAllEntry() {
         groupJdbcDao.save(testGroupEntity);
         groupJdbcDao.save(testGroupEntity);
@@ -67,6 +86,17 @@ class GroupJdbcDaoTest {
         int expected = 3;
         int actual = groupJdbcDao.getAll().size();
 
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void testGroupJdbcDao_ShouldReturnDaoException_inCaseOfEmptyTable() {
+        Exception exception = assertThrows(DaoException.class, () -> {
+            groupJdbcDao.getAll();
+            });
+
+        String actual = exception.getMessage();
+        String expected = IS_EMPTY;
         assertEquals(expected, actual);
     }
 
@@ -84,6 +114,17 @@ class GroupJdbcDaoTest {
     }
 
     @Test
+    void testGroupJdbcDao_ShouldReturnDaoException_inCaseOfNotUpdated() {
+        Exception exception = assertThrows(DaoException.class, () -> {
+            groupJdbcDao.update(testGroupEntity);
+        });
+
+        String actual = exception.getMessage();
+        String expected = NOT_SUCCESSFUL_OPERATION;
+        assertEquals(expected, actual);
+    }
+
+    @Test
     void testGroupJdbcDao_ShouldDeleteEntry() {
         groupJdbcDao.save(testGroupEntity);
         groupJdbcDao.save(testGroupEntity);
@@ -93,6 +134,17 @@ class GroupJdbcDaoTest {
         groupJdbcDao.deleteById(1);
         int actual = groupJdbcDao.getAll().size();
 
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void testGroupJdbcDao_ShouldReturnDaoException_inCaseOfNotDeleted() {
+        Exception exception = assertThrows(DaoException.class, () -> {
+            groupJdbcDao.deleteById(1);
+        });
+
+        String actual = exception.getMessage();
+        String expected = NOT_SUCCESSFUL_OPERATION;
         assertEquals(expected, actual);
     }
 
@@ -107,11 +159,13 @@ class GroupJdbcDaoTest {
     }
 
     @Test
-    void testGroupJdbcDao_ShouldReturnException_inCaseOfNotFoundId() {
-        Exception exception = assertThrows(DaoException.class, () -> groupJdbcDao.getByID(0));
+    void testGroupJdbcDao_ShouldReturnDaoException_inCaseOfNoGroupList() {
+        Exception exception = assertThrows(DaoException.class, () -> {
+            groupJdbcDao.getAllGroupsAccordingStudentCount(0);
+            });
 
         String actual = exception.getMessage();
-        String expected = GET_BY_ID_EXCEPTION;
+        String expected = IS_EMPTY;
         assertEquals(expected, actual);
     }
 
