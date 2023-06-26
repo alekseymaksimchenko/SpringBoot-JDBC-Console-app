@@ -19,6 +19,8 @@ import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.foxminded.schoolapp.dao.entity.StudentEntity;
@@ -43,7 +45,8 @@ public class StudentsGenerator implements StudentGenerator<StudentEntity> {
     private final int courseQuantity;
     private Random random = new Random();
 
-    public StudentsGenerator(String file) throws ServiceException {
+    @Autowired
+    public StudentsGenerator(@Value("${generator.file}") String file) throws ServiceException {
         LOGGER.trace("Load student quantity from config file = {}", file);
         Properties properties = new Properties();
         try (InputStream fileInputStream = new FileInputStream(file)) {

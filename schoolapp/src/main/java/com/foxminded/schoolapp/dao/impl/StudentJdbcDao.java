@@ -56,7 +56,7 @@ public class StudentJdbcDao implements StudentDao<StudentEntity> {
         try {
             return jdbcTemplate.queryForObject(SQL_GET_BY_ID, new StudentRowMapper(), id);
         } catch (EmptyResultDataAccessException e) {
-            throw new DaoException(GET_BY_ID_EXCEPTION);
+            throw new DaoException(GET_BY_ID_EXCEPTION, e);
         }
     }
 

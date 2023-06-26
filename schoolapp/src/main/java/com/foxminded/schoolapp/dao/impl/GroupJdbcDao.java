@@ -64,7 +64,7 @@ public class GroupJdbcDao implements GroupDao<GroupEntity> {
         try {
             return jdbcTemplate.queryForObject(SQL_GET_BY_ID, new GroupRowMapper(), id);
         } catch (EmptyResultDataAccessException e) {
-            throw new DaoException(GET_BY_ID_EXCEPTION);
+            throw new DaoException(GET_BY_ID_EXCEPTION, e);
         }
     }
 

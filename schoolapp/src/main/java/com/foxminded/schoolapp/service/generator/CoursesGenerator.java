@@ -12,6 +12,8 @@ import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.foxminded.schoolapp.dao.entity.CourseEntity;
@@ -26,7 +28,8 @@ public class CoursesGenerator implements Generator<CourseEntity> {
     private static final Logger LOGGER = LoggerFactory.getLogger(CoursesGenerator.class);
     private final List<String> courseNameList;
 
-    public CoursesGenerator(String file) throws ServiceException {
+    @Autowired
+    public CoursesGenerator(@Value("${generator.file}") String file) throws ServiceException {
         LOGGER.trace("Load course quantity from config file = {}", file);
         Properties properties = new Properties();
         try (InputStream fileInputStream = new FileInputStream(file)) {

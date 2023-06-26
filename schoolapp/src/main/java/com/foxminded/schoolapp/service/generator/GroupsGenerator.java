@@ -12,6 +12,8 @@ import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.foxminded.schoolapp.dao.entity.GroupEntity;
@@ -28,7 +30,8 @@ public class GroupsGenerator implements Generator<GroupEntity> {
     private final int groupQuantity;
     private Random random = new Random();
 
-    public GroupsGenerator(String file) throws ServiceException {
+    @Autowired
+    public GroupsGenerator(@Value("${generator.file}") String file) throws ServiceException {
         LOGGER.trace("Load group quantity from config file = {}", file);
         Properties properties = new Properties();
         try (InputStream fileInputStream = new FileInputStream(file)) {

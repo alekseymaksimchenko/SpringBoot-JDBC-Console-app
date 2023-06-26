@@ -53,7 +53,7 @@ public class CourseJdbcDao implements CourseDao<CourseEntity> {
         try {
             return jdbcTemplate.queryForObject(SQL_GET_BY_ID, new CourseRowMapper(), id);
         } catch (EmptyResultDataAccessException e) {
-            throw new DaoException(GET_BY_ID_EXCEPTION);
+            throw new DaoException(GET_BY_ID_EXCEPTION, e);
         }
     }
 
