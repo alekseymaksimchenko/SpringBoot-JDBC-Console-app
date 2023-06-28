@@ -11,7 +11,12 @@ spring:
 generator:
   file: src/main/resources/generatorsConfiguration.properties
       
- 
+logging:
+  level:
+    org.springframework: ERROR
+    com.foxminded.schoolapp: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"
 
 
 
