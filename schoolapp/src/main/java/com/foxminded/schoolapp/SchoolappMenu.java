@@ -61,25 +61,25 @@ public class SchoolappMenu {
             try {
                 switch (option) {
                 case 1:
-                    implementFirstCase(option);
+                    getAllGroupsAccordingStudentCount(option);
                     break;
                 case 2:
-                    implementSecondCase(option);
+                    findAllStudentsRelatedToCourse(option);
                     break;
                 case 3:
-                    implementThirdCase(option);
+                    saveStudent(option);
                     break;
                 case 4:
-                    implementFourthCase(option);
+                    deleteStudentById(option);
                     break;
                 case 5:
-                    implementFifthCase(option);
+                    addStudentToCourse(option);
                     break;
                 case 6:
-                    implementSixthCase(option);
+                    removeStudentByIDFromCourse(option);
                     break;
                 case 7:
-                    implementSeventhCase(option);
+                    doExit(option);
                     break loop;
                 }
             } catch (ServiceException e) {
@@ -99,7 +99,7 @@ public class SchoolappMenu {
         options.forEach(s -> System.out.println(s));
     }
 
-    private void implementFirstCase(int option) {
+    private void getAllGroupsAccordingStudentCount(int option) {
         LOGGER.info(LOGGER_START_MESSAGE, OPTIONS_LIST.get(option - ARRAY_SHIFT));
         System.out.println("Please enter an integer value of Students in a range (from 10 to 30).");
         Integer studentCount = Integer.valueOf(scanner.next().trim());
@@ -108,16 +108,16 @@ public class SchoolappMenu {
         LOGGER.info(LOGGER_END_MESSAGE, option);
     }
 
-    private void implementSecondCase(int option) {
+    private void findAllStudentsRelatedToCourse(int option) {
         LOGGER.info(LOGGER_START_MESSAGE, OPTIONS_LIST.get(option - ARRAY_SHIFT));
-        System.out.println("Please enter an Id of Course from above List.");
         System.out.println(courseService.getAll());
+        System.out.println("Please enter an Id of Course from above List.");
         Integer courseId = Integer.valueOf(scanner.next().trim());
         System.out.println(studentService.findAllStudentsRelatedToCourse(courseId));
         LOGGER.info(LOGGER_END_MESSAGE, option);
     }
 
-    private void implementThirdCase(int option) {
+    private void saveStudent(int option) {
         LOGGER.info(LOGGER_START_MESSAGE, OPTIONS_LIST.get(option - ARRAY_SHIFT));
         StudentEntity newStudent = new StudentEntity();
         System.out.println("Please enter student Firstname.");
@@ -125,21 +125,21 @@ public class SchoolappMenu {
         Optional<String> newStudentFirstname = Optional.ofNullable(scanner.next().trim());
         if (!newStudentFirstname.isPresent()) {
             System.out.println("Value can`t be null. Please enter student Firstname.");
-            scanner.next();
+            scanner.next().trim();
         }
 
         System.out.println("Please enter student Lastname.");
         Optional<String> newStudentLastname = Optional.ofNullable(scanner.next().trim());
         if (!newStudentLastname.isPresent()) {
             System.out.println("Value can`t be null. Please enter student Lastname.");
-            scanner.next();
+            scanner.next().trim();
         }
 
         System.out.println("Please enter group Id in a range (from 1 to 10)");
         Integer groupId = Integer.valueOf(scanner.next().trim());
         if (groupId < 0 && groupId > 10) {
             System.out.println("Group Id is out of range. Please enter group Id in a range (from 1 to 10)");
-            scanner.next();
+            scanner.next().trim();
         }
 
         newStudent.setFirstname(newStudentFirstname.get());
@@ -150,7 +150,7 @@ public class SchoolappMenu {
         LOGGER.info(LOGGER_END_MESSAGE, option);
     }
 
-    private void implementFourthCase(int option) {
+    private void deleteStudentById(int option) {
         LOGGER.info(LOGGER_START_MESSAGE, OPTIONS_LIST.get(option - ARRAY_SHIFT));
         System.out.println("Please enter an Id of Strudent than should be deleted.");
         Integer studentId = Integer.valueOf(scanner.next().trim());
@@ -160,7 +160,7 @@ public class SchoolappMenu {
         LOGGER.info(LOGGER_END_MESSAGE, option);
     }
 
-    private void implementFifthCase(int option) {
+    private void addStudentToCourse(int option) {
         LOGGER.info(LOGGER_START_MESSAGE, OPTIONS_LIST.get(option - ARRAY_SHIFT));
         System.out.println("Please enter an Id of Strudent.");
         Integer studentId = Integer.valueOf(scanner.next().trim());
@@ -169,7 +169,7 @@ public class SchoolappMenu {
         Integer courseId = Integer.valueOf(scanner.next().trim());
         if (courseId < 0 && courseId > courseService.getAll().size()) {
             System.out.println("Course Id is not exist. Please enter course Id from the list.");
-            scanner.next();
+            scanner.next().trim();
         }
 
         Optional<Integer> check = studentService.findAllStudentsRelatedToCourse(courseId).stream().map(s -> s.getId())
@@ -181,7 +181,7 @@ public class SchoolappMenu {
         LOGGER.info(LOGGER_END_MESSAGE, option);
     }
 
-    private void implementSixthCase(int option) {
+    private void removeStudentByIDFromCourse(int option) {
         LOGGER.info(LOGGER_START_MESSAGE, OPTIONS_LIST.get(option - ARRAY_SHIFT));
         System.out.println("Please enter an Id of Strudent.");
         Integer studentId = Integer.valueOf(scanner.next().trim());
@@ -199,7 +199,7 @@ public class SchoolappMenu {
         LOGGER.info(LOGGER_END_MESSAGE, option);
     }
 
-    private void implementSeventhCase(int option) {
+    private void doExit(int option) {
         LOGGER.info(LOGGER_START_MESSAGE, OPTIONS_LIST.get(option - ARRAY_SHIFT));
         System.out.println("Shutdown completed");
     }
