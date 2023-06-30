@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -40,6 +42,7 @@ public class SchoolappMenu {
         this.courseService = courseService;
     }
 
+    @PostConstruct
     public void runMenu() {
         try {
             if (!courseService.getAll().isEmpty()) {
